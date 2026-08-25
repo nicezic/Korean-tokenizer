@@ -102,6 +102,76 @@ tokenizers flatten it again.
    (on the scientific design of Hangul) in NFC vs NFD form. Any token-count gap between
    canonically equivalent strings measures pure representation fragility.
 
+## Experimental validation — controlled SentencePiece A/B
+
+To isolate the representation change from tokenizer algorithm and vocabulary size, two
+SentencePiece 0.2.2 BPE tokenizers were trained on the same Korean Wikipedia train split with
+the same 32K vocabulary and training configuration. The primary comparison changes exactly
+one normalization path: **identity** vs `data/korean_hangul_jamo.tsv`.
+
+> 🧪 **Primary result.** Jamo decomposition uses **1.47% fewer NFC tokens** on the held-out
+> Wikipedia split, reduces the full-corpus NFD blow-up from **6.98× to 1.0013×**, and removes
+> byte fallback in the measured rare-Hangul tail. It is **not** the best compression-only
+> configuration: an NFKC control compresses the held-out corpus better without becoming
+> Jamo-structural.
+
+| Metric | Baseline BPE 32K | Jamo-aware BPE 32K |
+|---|---:|---:|
+| README sample — NFC / NFD tokens | 220 / 1,859 | **214 / 214** |
+| Held-out NFC tokens | 7,449,254 | **7,339,458** (**−1.47%**) |
+| Held-out NFD blow-up | **6.9809×** | **1.0013×** |
+| Held-out UTF-8 bytes / token | 4.6320 | **4.7013** |
+| Tokens / Hangul syllable | 0.8146 | **0.8026** |
+| Jamo-containing vocabulary pieces | 75 | **23,657** |
+| NFC-recomposed atomic syllables | **1,960** | 1,122 |
+| NFC-recomposed multi-syllable pieces | 18,312 | **21,461** |
+| Rare-tail isolated tokens / occurrence¹ | 4.0000 | **2.2281** |
+| Rare-tail byte tokens / occurrence¹ | 3.0000 | **0.0000** |
+
+¹ Rare tail = syllables occurring at most five times in training and appearing again in the
+test split: 50 syllable types / 57 test occurrences. All 11,172 modern syllables occur at
+least once in the Wikipedia train split, so this is a **rare-tail fallback probe**, not an
+unseen-syllable or out-of-distribution claim. The Jamo model's full-Wikipedia 1.0013× residual
+comes from NFD changes outside precomposed Hangul; the Hangul-focused 465-character sample is
+exactly 1.00×.
+
+### Controls and auxiliary run
+
+The 32K `nmt_nfkc` control reaches **7,107,482** held-out NFC tokens (4.8548 bytes/token) and
+a **1.0000×** NFD/NFC ratio (a one-token difference), outperforming both primary models on compression while still using
+precomposed-syllable vocabulary structure. This is direct evidence that canonical robustness,
+structural awareness, and compression are separate axes.
+
+A pre-registered Jamo 24K auxiliary model uses **7,636,747** held-out NFC tokens — **2.52% more**
+than the 32K identity baseline — while retaining 1.0012× NFD parity and the same 2.2281-token,
+zero-byte-fallback rare-tail behavior. A 25% vocabulary reduction is therefore **not free** at
+this operating point.
+
+### Corpus and configuration
+
+The corpus is the first three `kowiki-latest-pages-articles-multistream` shards:
+
+- `multistream1.xml-p1p82407.bz2`
+- `multistream2.xml-p82408p253794.bz2`
+- `multistream3.xml-p253795p550363.bz2`
+
+Streaming extraction produced **144,018 articles / 319,968,030 characters**. A deterministic
+SHA-256 content-hash split at article boundaries produced **136,757 train documents**
+(675,056,542 bytes) and **7,261 test documents** (34,519,812 bytes). The train/test SHA-256
+hashes are `17d26d1136085e907d2e5e9506c6527ec1db4989840812a507624a0b088801ba` and
+`5bb1ae5d792ecc0444b925162c119a2aa6a0550e617d6e964f007a4dcbde5de`.
+
+Common primary settings are BPE, vocab 32,000, `character_coverage=0.9995`, `byte_fallback=true`,
+`input_sentence_size=0`, no input shuffling, and `max_sentencepiece_length=64`. The learned
+maximum recomposed span is 12 Hangul syllables in both primary models, so the 64-character cap
+is not active in the reported result. `character_coverage=1.0` cannot fit this corpus into a
+32K vocabulary because the Wikipedia tail contains far more required Unicode characters;
+byte fallback preserves excluded rare characters losslessly.
+
+The held-out Wikipedia split is **in-distribution and not deduplicated across documents**.
+Templates, citations, quotations, and repeated phrases can cross document boundaries. These
+results measure tokenizer behavior, not downstream language-model quality.
+
 ## Unicode note
 
 ```text
@@ -121,12 +191,20 @@ conjoining range only.
 ## Reproduce
 
 ```bash
+# Production tokenizer benchmark
 uv run python src/analyze_tokenizer_json.py <path/to/tokenizer.json>
 uv run python src/analyze_tiktoken_encoding.py o200k_base
+
+# Controlled SentencePiece experiment, after downloading the three local Wikipedia shards
+uv run python src/extract_wikipedia.py data/kowiki-shard1.xml.bz2 data/kowiki-shard2.xml.bz2 data/kowiki-shard3.xml.bz2
+uv run python src/split_corpus.py
+uv run python src/train_sentencepiece.py --with-nfkc-control --aux-jamo-vocab-size 24000
+uv run python src/compare_sentencepiece.py
 ```
 
 Any HF `tokenizer.json` works for the first script — both GPT-2-alphabet vocab storage and
-plain-text storage (SentencePiece-derived) are handled.
+plain-text storage (SentencePiece-derived) are handled. Wikipedia dumps, derived corpora, and
+trained SentencePiece model artifacts stay local and are ignored by Git.
 
 ## Reproducibility
 
@@ -187,6 +265,9 @@ Results describe these exact revisions; providers may update tokenizers at any t
   - Provides a recent multilingual methodology precedent for comparing normalization choices and tokenizer fertility.
 - [*Parity-Aware BPE* — ACL 2026](https://aclanthology.org/2026.acl-long.342/)
   - Treats cross-language compression disparity as an explicit BPE optimization objective, including Korean evaluation.
+- [*SuperBPE: Space Travel for Language Models* — 2025](https://arxiv.org/abs/2503.13423)
+  - Two-stage BPE whose second stage lets pre-tokens span multiple whitespace-delimited words; the exact mechanism
+    Motif 3 adopts for its Korean compression, explaining this benchmark's table-leading multi-syllable merge count.
 - [*Motif 3 Technical Report* — 2026](https://arxiv.org/abs/2608.09119)
   - Uses SuperBPE to optimize multilingual compression; its released tokenizer is a useful counterexample showing that strong Korean compression can coexist with poor NFC/NFD parity.
 
@@ -210,5 +291,10 @@ Results describe these exact revisions; providers may update tokenizers at any t
 | [`src/hangul_metrics.py`](src/hangul_metrics.py) | Shared classification + NFC/NFD blow-up logic |
 | [`src/analyze_tokenizer_json.py`](src/analyze_tokenizer_json.py) | Analyze any HF `tokenizer.json` |
 | [`src/analyze_tiktoken_encoding.py`](src/analyze_tiktoken_encoding.py) | Analyze any `tiktoken` encoding |
+| [`src/extract_wikipedia.py`](src/extract_wikipedia.py) | Stream and clean Wikimedia XML bz2 shards while preserving article boundaries |
+| [`src/split_corpus.py`](src/split_corpus.py) | Deterministic document-level train/test split |
+| [`src/train_sentencepiece.py`](src/train_sentencepiece.py) | Train/audit identity, Jamo, NFKC-control, and auxiliary SentencePiece BPE models |
+| [`src/compare_sentencepiece.py`](src/compare_sentencepiece.py) | Held-out compression, normalization, vocabulary, and rare-tail comparison |
+| [`tests/test_pipeline.py`](tests/test_pipeline.py) | Pipeline invariants for extraction, splitting, normalization, fairness, and rare-tail metrics |
 | [`svg/hangul-hero.svg`](svg/hangul-hero.svg) | Editable source for the animated Hangul hero banner |
 | [`docs/hangul-hero.svg`](docs/hangul-hero.svg) | README-rendered copy of the hero banner |
