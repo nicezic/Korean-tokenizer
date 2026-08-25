@@ -1,0 +1,738 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 955" width="100%" height="100%" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, 'Noto Sans KR', 'Malgun Gothic', sans-serif">
+  <defs>
+    <linearGradient id="bg-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0d1117"/>
+      <stop offset="100%" stop-color="#161b22"/>
+    </linearGradient>
+    <linearGradient id="card-glow-blue" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1f6feb" stop-opacity="0.16"/>
+      <stop offset="100%" stop-color="#388bfd" stop-opacity="0.02"/>
+    </linearGradient>
+    <linearGradient id="card-glow-red" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#da3633" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="#f85149" stop-opacity="0.02"/>
+    </linearGradient>
+    <filter id="glow-blue" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="4" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+    <filter id="glow-gold" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="4" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+    <filter id="glow-green" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="4" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+    <filter id="glow-red-strong" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="4" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+    <filter id="glow-white" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="3" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- Background Canvas -->
+  <rect width="800" height="955" rx="14" fill="url(#bg-grad)" stroke="#30363d" stroke-width="1.5"/>
+
+  <!-- Top Header -->
+  <g transform="translate(35, 20)">
+    <rect x="0" y="0" width="86" height="20" rx="10" fill="#238636" fill-opacity="0.2" stroke="#2ea043" stroke-width="1"/>
+    <text x="43" y="14" text-anchor="middle" font-size="10.5" font-weight="700" fill="#3fb950" letter-spacing="0.05em">BENCHMARK</text>
+    <text x="96" y="15" font-size="12.8" font-weight="700" fill="#f0f6fc">Korean (Hangul) is a Modular Alphabet (67 Symbols). LLMs See 11,172 Meaningless Opaque Blobs.</text>
+    <text x="0" y="37" font-size="11.5" fill="#8b949e">Production tokenizers treat compositional Korean syllables as statistical byte soup.</text>
+  </g>
+
+  <!-- ================= TIER 1: FULL WIDTH PANELS (355.0px) ================= -->
+  <!-- Left Panel: LLM Byte Blindness -->
+  <g transform="translate(35, 65)">
+    <rect width="355.0" height="175" rx="10" fill="url(#card-glow-red)" stroke="#da3633" stroke-width="1" stroke-opacity="0.4"/>
+    <circle cx="18" cy="18" r="4.5" fill="#f85149"/>
+    <text x="30" y="22" font-size="12" font-weight="700" fill="#ff7b72">Standard LLM Tokenizer</text>
+    <text x="340.0" y="22" text-anchor="end" font-size="10" fill="#8b949e">Opaque Byte View</text>
+    <line x1="15" y1="32" x2="340.0" y2="32" stroke="#30363d" stroke-width="0.8"/>
+
+    <!-- Byte Display Box -->
+    <g transform="translate(16, 40)">
+      <rect width="323" height="82" rx="6" fill="#0d1117" stroke="#30363d" stroke-width="1"/>
+      <g transform="translate(12, 16)">
+        <rect x="0" y="0" width="142" height="50" rx="5" fill="#21262d" stroke="#f85149" stroke-width="1.2"/>
+        <text x="71" y="24" text-anchor="middle" font-size="13" font-family="monospace" font-weight="800" fill="#ff7b72">ED 95 9C</text>
+        <text x="71" y="41" text-anchor="middle" font-size="11" font-weight="700" fill="#8b949e">[ 한 · 3 Bytes ]</text>
+
+        <rect x="157" y="0" width="142" height="50" rx="5" fill="#21262d" stroke="#f85149" stroke-width="1.2"/>
+        <text x="228" y="24" text-anchor="middle" font-size="13" font-family="monospace" font-weight="800" fill="#ff7b72">EA B8 80</text>
+        <text x="228" y="41" text-anchor="middle" font-size="11" font-weight="700" fill="#8b949e">[ 글 · 3 Bytes ]</text>
+      </g>
+    </g>
+
+    <!-- Bottom Warning Pill -->
+    <rect x="16" y="130" width="323" height="30" rx="5" fill="#da3633" fill-opacity="0.15" stroke="#da3633" stroke-width="0.8"/>
+    <text x="177.5" y="150" text-anchor="middle" font-size="10.5" font-weight="700" fill="#ff7b72">
+      ⚠️ 0% Modular Awareness · Raw Byte Soup
+    </text>
+  </g>
+
+  <!-- Right Panel: Modular Architecture -->
+  <g transform="translate(410.0, 65)">
+    <rect width="355.0" height="175" rx="10" fill="url(#card-glow-blue)" stroke="#1f6feb" stroke-width="1" stroke-opacity="0.5"/>
+    <circle cx="18" cy="18" r="4.5" fill="#388bfd"/>
+    <text x="30" y="22" font-size="12" font-weight="700" fill="#58a6ff">Korean Modular Architecture</text>
+    <text x="340.0" y="22" text-anchor="end" font-size="10" fill="#8b949e">Modular Assembly</text>
+    <line x1="15" y1="32" x2="340.0" y2="32" stroke="#30363d" stroke-width="0.8"/>
+
+    <!-- Syllable 1 Slot: [한] -->
+    <g transform="translate(16, 38)">
+      <rect width="154" height="96" rx="6" fill="#0d1117" stroke="#30363d" stroke-width="1.2" stroke-dasharray="3 3"/>
+      <rect x="6" y="6" width="67" height="40" rx="3" fill="#1f6feb" fill-opacity="0.08" stroke="#1f6feb" stroke-width="0.8" stroke-dasharray="2 2"/>
+      <text x="39.5" y="28" text-anchor="middle" font-size="9" font-weight="700" fill="#58a6ff" opacity="0.7">INITIAL</text>
+      <rect x="79" y="6" width="69" height="40" rx="3" fill="#d29922" fill-opacity="0.08" stroke="#d29922" stroke-width="0.8" stroke-dasharray="2 2"/>
+      <text x="113.5" y="28" text-anchor="middle" font-size="9" font-weight="700" fill="#e3b341" opacity="0.7">VOWEL</text>
+      <rect x="6" y="50" width="142" height="40" rx="3" fill="#238636" fill-opacity="0.08" stroke="#238636" stroke-width="0.8" stroke-dasharray="2 2"/>
+      <text x="77" y="74" text-anchor="middle" font-size="9" font-weight="700" fill="#3fb950" opacity="0.7">FINAL</text>
+
+      <!-- Merged Card Overlay [한] -->
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.261;0.2625;0.916;0.95;1" dur="8.0s" repeatCount="indefinite"/>
+        <rect width="154" height="96" rx="6" fill="#161b22" stroke="#58a6ff" stroke-width="1.8" filter="url(#glow-blue)"/>
+        <text x="77.0" y="62" text-anchor="middle" font-size="44" font-weight="900" fill="#f0f6fc">한</text>
+        <text x="77.0" y="86" text-anchor="middle" font-size="9" font-weight="700" fill="#79c0ff">U+D55C · #13 + #0 + #1</text>
+      </g>
+    </g>
+
+    <!-- Syllable 2 Slot: [글] -->
+    <g transform="translate(185, 38)">
+      <rect width="154" height="96" rx="6" fill="#0d1117" stroke="#30363d" stroke-width="1.2" stroke-dasharray="3 3"/>
+      <rect x="6" y="6" width="67" height="40" rx="3" fill="#1f6feb" fill-opacity="0.08" stroke="#1f6feb" stroke-width="0.8" stroke-dasharray="2 2"/>
+      <text x="39.5" y="28" text-anchor="middle" font-size="9" font-weight="700" fill="#58a6ff" opacity="0.7">INITIAL</text>
+      <rect x="79" y="6" width="69" height="40" rx="3" fill="#d29922" fill-opacity="0.08" stroke="#d29922" stroke-width="0.8" stroke-dasharray="2 2"/>
+      <text x="113.5" y="28" text-anchor="middle" font-size="9" font-weight="700" fill="#e3b341" opacity="0.7">VOWEL</text>
+      <rect x="6" y="50" width="142" height="40" rx="3" fill="#238636" fill-opacity="0.08" stroke="#238636" stroke-width="0.8" stroke-dasharray="2 2"/>
+      <text x="77" y="74" text-anchor="middle" font-size="9" font-weight="700" fill="#3fb950" opacity="0.7">FINAL</text>
+
+      <!-- Merged Card Overlay [글] -->
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.561;0.5625;0.916;0.95;1" dur="8.0s" repeatCount="indefinite"/>
+        <rect width="154" height="96" rx="6" fill="#161b22" stroke="#58a6ff" stroke-width="1.8" filter="url(#glow-blue)"/>
+        <text x="77.0" y="62" text-anchor="middle" font-size="44" font-weight="900" fill="#f0f6fc">글</text>
+        <text x="77.0" y="86" text-anchor="middle" font-size="9" font-weight="700" fill="#79c0ff">U+AE00 · #0 + #18 + #3</text>
+      </g>
+    </g>
+
+    <!-- Formula Ticker -->
+    <g transform="translate(16, 140)">
+      <rect width="323" height="24" rx="4" fill="#0d1117" stroke="#30363d" stroke-width="0.8"/>
+      <text x="161.5" y="16" text-anchor="middle" font-size="10" font-family="monospace" fill="#79c0ff">
+        0xAC00 + (Initial×588) + (Vowel×28) + Final
+      </text>
+    </g>
+  </g>
+
+  <!-- ================= FLYING TILES LAYER ================= -->
+  <!-- Fly ㅎ (initial) -->
+  <g opacity="0">
+    <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.0365;0.0375;0.2615;0.2625;1" dur="8.0s" repeatCount="indefinite"/>
+    <animateTransform attributeName="transform" type="translate"
+      values="575.4,305.0; 575.4,305.0; 465.5,129; 465.5,129; 575.4,305.0"
+      keyTimes="0; 0.0375; 0.1000; 0.2625; 1"
+      keySplines="0.16 1 0.3 1; 0.16 1 0.3 1; 0 0 1 1; 0 0 1 1"
+      calcMode="spline" dur="8.0s" repeatCount="indefinite"/>
+    <rect x="-16.0" y="-16.0" width="32" height="32" rx="5" fill="#1f6feb" stroke="#79c0ff" stroke-width="1.6" filter="url(#glow-blue)"/>
+    <text x="0" y="6" text-anchor="middle" font-size="18" font-weight="900" fill="#f0f6fc">ㅎ</text>
+  </g>
+  <!-- Fly ㅏ (vowel) -->
+  <g opacity="0">
+    <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.1115;0.1125;0.2615;0.2625;1" dur="8.0s" repeatCount="indefinite"/>
+    <animateTransform attributeName="transform" type="translate"
+      values="163.5,333.0; 163.5,333.0; 539.5,129; 539.5,129; 163.5,333.0"
+      keyTimes="0; 0.1125; 0.1750; 0.2625; 1"
+      keySplines="0.16 1 0.3 1; 0.16 1 0.3 1; 0 0 1 1; 0 0 1 1"
+      calcMode="spline" dur="8.0s" repeatCount="indefinite"/>
+    <rect x="-16.0" y="-16.0" width="32" height="32" rx="5" fill="#d29922" stroke="#f2cc60" stroke-width="1.6" filter="url(#glow-gold)"/>
+    <text x="0" y="6" text-anchor="middle" font-size="18" font-weight="900" fill="#f0f6fc">ㅏ</text>
+  </g>
+  <!-- Fly ㄴ (final) -->
+  <g opacity="0">
+    <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.1865;0.1875;0.2615;0.2625;1" dur="8.0s" repeatCount="indefinite"/>
+    <animateTransform attributeName="transform" type="translate"
+      values="228.4,361.0; 228.4,361.0; 503.0,173; 503.0,173; 228.4,361.0"
+      keyTimes="0; 0.1875; 0.2500; 0.2625; 1"
+      keySplines="0.16 1 0.3 1; 0.16 1 0.3 1; 0 0 1 1; 0 0 1 1"
+      calcMode="spline" dur="8.0s" repeatCount="indefinite"/>
+    <rect x="-22.0" y="-13.0" width="44" height="26" rx="5" fill="#238636" stroke="#56d364" stroke-width="1.6" filter="url(#glow-green)"/>
+    <text x="0" y="6" text-anchor="middle" font-size="17" font-weight="900" fill="#f0f6fc">ㄴ</text>
+  </g>
+  <!-- Fly ㄱ (initial) -->
+  <g opacity="0">
+    <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.3365;0.3375;0.5615;0.5625;1" dur="8.0s" repeatCount="indefinite"/>
+    <animateTransform attributeName="transform" type="translate"
+      values="164.5,305.0; 164.5,305.0; 634.5,129; 634.5,129; 164.5,305.0"
+      keyTimes="0; 0.3375; 0.4000; 0.5625; 1"
+      keySplines="0.16 1 0.3 1; 0.16 1 0.3 1; 0 0 1 1; 0 0 1 1"
+      calcMode="spline" dur="8.0s" repeatCount="indefinite"/>
+    <rect x="-16.0" y="-16.0" width="32" height="32" rx="5" fill="#1f6feb" stroke="#79c0ff" stroke-width="1.6" filter="url(#glow-blue)"/>
+    <text x="0" y="6" text-anchor="middle" font-size="18" font-weight="900" fill="#f0f6fc">ㄱ</text>
+  </g>
+  <!-- Fly ㅡ (vowel) -->
+  <g opacity="0">
+    <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.4115;0.4125;0.5615;0.5625;1" dur="8.0s" repeatCount="indefinite"/>
+    <animateTransform attributeName="transform" type="translate"
+      values="677.4,333.0; 677.4,333.0; 708.5,129; 708.5,129; 677.4,333.0"
+      keyTimes="0; 0.4125; 0.4750; 0.5625; 1"
+      keySplines="0.16 1 0.3 1; 0.16 1 0.3 1; 0 0 1 1; 0 0 1 1"
+      calcMode="spline" dur="8.0s" repeatCount="indefinite"/>
+    <rect x="-16.0" y="-16.0" width="32" height="32" rx="5" fill="#d29922" stroke="#f2cc60" stroke-width="1.6" filter="url(#glow-gold)"/>
+    <text x="0" y="6" text-anchor="middle" font-size="18" font-weight="900" fill="#f0f6fc">ㅡ</text>
+  </g>
+  <!-- Fly ㄹ (final) -->
+  <g opacity="0">
+    <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.4865;0.4875;0.5615;0.5625;1" dur="8.0s" repeatCount="indefinite"/>
+    <animateTransform attributeName="transform" type="translate"
+      values="269.2,361.0; 269.2,361.0; 672.0,173; 672.0,173; 269.2,361.0"
+      keyTimes="0; 0.4875; 0.5500; 0.5625; 1"
+      keySplines="0.16 1 0.3 1; 0.16 1 0.3 1; 0 0 1 1; 0 0 1 1"
+      calcMode="spline" dur="8.0s" repeatCount="indefinite"/>
+    <rect x="-22.0" y="-13.0" width="44" height="26" rx="5" fill="#238636" stroke="#56d364" stroke-width="1.6" filter="url(#glow-green)"/>
+    <text x="0" y="6" text-anchor="middle" font-size="17" font-weight="900" fill="#f0f6fc">ㄹ</text>
+  </g>
+
+  <!-- ================= TIER 2: 67 JAMO KEYBOARD DOCK (596px) ================= -->
+  <g transform="translate(35, 252)">
+    <rect width="730" height="142" rx="10" fill="#0d1117" stroke="#30363d" stroke-width="1.5"/>
+
+    <!-- Dock Header -->
+    <text x="18" y="20" font-size="11.5" font-weight="700" fill="#8b949e" letter-spacing="0.05em">67 JAMO (Korean Modular Alphabet) SYMBOLS · FINITE PALETTE</text>
+    <line x1="18" y1="28" x2="712" y2="28" stroke="#21262d" stroke-width="1"/>
+
+    <!-- ROW 1: INITIAL CONSONANTS -->
+    <g transform="translate(18, 42)">
+      <rect x="0" y="-1" width="86" height="22" rx="4" fill="#1f6feb" fill-opacity="0.15" stroke="#1f6feb" stroke-width="0.8"/>
+      <text x="43.0" y="14" text-anchor="middle" font-size="9.5" font-weight="700" fill="#58a6ff">INITIAL (19)</text>
+      <g transform="translate(98, 0)">
+        <g transform="translate(0.0, 0)">
+          <rect width="27" height="22" rx="4" fill="#161b22" stroke="#30363d" stroke-width="1">
+            <animate attributeName="fill" values="#161b22;#161b22;#1f6feb;#1f6feb;#161b22;#161b22" keyTimes="0;0.336;0.3375;0.400;0.401;1" dur="8.0s" repeatCount="indefinite"/>
+            <animate attributeName="stroke" values="#30363d;#30363d;#79c0ff;#79c0ff;#30363d;#30363d" keyTimes="0;0.336;0.3375;0.400;0.401;1" dur="8.0s" repeatCount="indefinite"/>
+            <animate attributeName="stroke-width" values="1;1;2;2;1;1" keyTimes="0;0.336;0.3375;0.400;0.401;1" dur="8.0s" repeatCount="indefinite"/>
+          </rect>
+          <text x="13.5" y="15" text-anchor="middle" font-size="12.5" font-weight="700" fill="#6e7681">
+            <animate attributeName="fill" values="#6e7681;#6e7681;#ffffff;#ffffff;#6e7681;#6e7681" keyTimes="0;0.336;0.3375;0.400;0.401;1" dur="8.0s" repeatCount="indefinite"/>
+            ㄱ
+          </text>
+        </g>
+        <g transform="translate(31.6, 0)">
+          <rect width="27" height="22" rx="4" fill="#161b22" stroke="#21262d" stroke-width="1"/>
+          <text x="13.5" y="15" text-anchor="middle" font-size="12.5" font-weight="600" fill="#8b949e">ㄴ</text>
+        </g>
+        <g transform="translate(63.2, 0)">
+          <rect width="27" height="22" rx="4" fill="#161b22" stroke="#21262d" stroke-width="1"/>
+          <text x="13.5" y="15" text-anchor="middle" font-size="12.5" font-weight="600" fill="#8b949e">ㄷ</text>
+        </g>
+        <g transform="translate(94.8, 0)">
+          <rect width="27" height="22" rx="4" fill="#161b22" stroke="#21262d" stroke-width="1"/>
+          <text x="13.5" y="15" text-anchor="middle" font-size="12.5" font-weight="600" fill="#8b949e">ㄹ</text>
+        </g>
+        <g transform="translate(126.4, 0)">
+          <rect width="27" height="22" rx="4" fill="#161b22" stroke="#21262d" stroke-width="1"/>
+          <text x="13.5" y="15" text-anchor="middle" font-size="12.5" font-weight="600" fill="#8b949e">ㅁ</text>
+        </g>
+        <g transform="translate(158.1, 0)">
+          <rect width="27" height="22" rx="4" fill="#161b22" stroke="#21262d" stroke-width="1"/>
+          <text x="13.5" y="15" text-anchor="middle" font-size="12.5" font-weight="600" fill="#8b949e">ㅂ</text>
+        </g>
+        <g transform="translate(189.7, 0)">
+          <rect width="27" height="22" rx="4" fill="#161b22" stroke="#21262d" stroke-width="1"/>
+          <text x="13.5" y="15" text-anchor="middle" font-size="12.5" font-weight="600" fill="#8b949e">ㅅ</text>
+        </g>
+        <g transform="translate(221.3, 0)">
+          <rect width="27" height="22" rx="4" fill="#161b22" stroke="#21262d" stroke-width="1"/>
+          <text x="13.5" y="15" text-anchor="middle" font-size="12.5" font-weight="600" fill="#8b949e">ㅇ</text>
+        </g>
+        <g transform="translate(252.9, 0)">
+          <rect width="27" height="22" rx="4" fill="#161b22" stroke="#21262d" stroke-width="1"/>
+          <text x="13.5" y="15" text-anchor="middle" font-size="12.5" font-weight="600" fill="#8b949e">ㅈ</text>
+        </g>
+        <g transform="translate(284.5, 0)">
+          <rect width="27" height="22" rx="4" fill="#161b22" stroke="#21262d" stroke-width="1"/>
+          <text x="13.5" y="15" text-anchor="middle" font-size="12.5" font-weight="600" fill="#8b949e">ㅊ</text>
+        </g>
+        <g transform="translate(316.1, 0)">
+          <rect width="27" height="22" rx="4" fill="#161b22" stroke="#21262d" stroke-width="1"/>
+          <text x="13.5" y="15" text-anchor="middle" font-size="12.5" font-weight="600" fill="#8b949e">ㅋ</text>
+        </g>
+        <g transform="translate(347.7, 0)">
+          <rect width="27" height="22" rx="4" fill="#161b22" stroke="#21262d" stroke-width="1"/>
+          <text x="13.5" y="15" text-anchor="middle" font-size="12.5" font-weight="600" fill="#8b949e">ㅌ</text>
+        </g>
+        <g transform="translate(379.3, 0)">
+          <rect width="27" height="22" rx="4" fill="#161b22" stroke="#21262d" stroke-width="1"/>
+          <text x="13.5" y="15" text-anchor="middle" font-size="12.5" font-weight="600" fill="#8b949e">ㅍ</text>
+        </g>
+        <g transform="translate(410.9, 0)">
+          <rect width="27" height="22" rx="4" fill="#161b22" stroke="#30363d" stroke-width="1">
+            <animate attributeName="fill" values="#161b22;#161b22;#1f6feb;#1f6feb;#161b22;#161b22" keyTimes="0;0.036;0.0375;0.100;0.101;1" dur="8.0s" repeatCount="indefinite"/>
+            <animate attributeName="stroke" values="#30363d;#30363d;#79c0ff;#79c0ff;#30363d;#30363d" keyTimes="0;0.036;0.0375;0.100;0.101;1" dur="8.0s" repeatCount="indefinite"/>
+            <animate attributeName="stroke-width" values="1;1;2;2;1;1" keyTimes="0;0.036;0.0375;0.100;0.101;1" dur="8.0s" repeatCount="indefinite"/>
+          </rect>
+          <text x="13.5" y="15" text-anchor="middle" font-size="12.5" font-weight="700" fill="#6e7681">
+            <animate attributeName="fill" values="#6e7681;#6e7681;#ffffff;#ffffff;#6e7681;#6e7681" keyTimes="0;0.036;0.0375;0.100;0.101;1" dur="8.0s" repeatCount="indefinite"/>
+            ㅎ
+          </text>
+        </g>
+        <g transform="translate(442.6, 0)">
+          <rect width="27" height="22" rx="4" fill="#161b22" stroke="#21262d" stroke-width="1"/>
+          <text x="13.5" y="15" text-anchor="middle" font-size="12.5" font-weight="600" fill="#8b949e">ㄲ</text>
+        </g>
+        <g transform="translate(474.2, 0)">
+          <rect width="27" height="22" rx="4" fill="#161b22" stroke="#21262d" stroke-width="1"/>
+          <text x="13.5" y="15" text-anchor="middle" font-size="12.5" font-weight="600" fill="#8b949e">ㄸ</text>
+        </g>
+        <g transform="translate(505.8, 0)">
+          <rect width="27" height="22" rx="4" fill="#161b22" stroke="#21262d" stroke-width="1"/>
+          <text x="13.5" y="15" text-anchor="middle" font-size="12.5" font-weight="600" fill="#8b949e">ㅃ</text>
+        </g>
+        <g transform="translate(537.4, 0)">
+          <rect width="27" height="22" rx="4" fill="#161b22" stroke="#21262d" stroke-width="1"/>
+          <text x="13.5" y="15" text-anchor="middle" font-size="12.5" font-weight="600" fill="#8b949e">ㅆ</text>
+        </g>
+        <g transform="translate(569.0, 0)">
+          <rect width="27" height="22" rx="4" fill="#161b22" stroke="#21262d" stroke-width="1"/>
+          <text x="13.5" y="15" text-anchor="middle" font-size="12.5" font-weight="600" fill="#8b949e">ㅉ</text>
+        </g>
+      </g>
+    </g>
+
+    <!-- ROW 2: MEDIAL VOWELS -->
+    <g transform="translate(18, 70)">
+      <rect x="0" y="-1" width="86" height="22" rx="4" fill="#d29922" fill-opacity="0.15" stroke="#d29922" stroke-width="0.8"/>
+      <text x="43.0" y="14" text-anchor="middle" font-size="9.5" font-weight="700" fill="#e3b341">VOWEL (21)</text>
+      <g transform="translate(98, 0)">
+        <g transform="translate(0.0, 0)">
+          <rect width="25" height="22" rx="4" fill="#161b22" stroke="#30363d" stroke-width="1">
+            <animate attributeName="fill" values="#161b22;#161b22;#d29922;#d29922;#161b22;#161b22" keyTimes="0;0.111;0.1125;0.175;0.176;1" dur="8.0s" repeatCount="indefinite"/>
+            <animate attributeName="stroke" values="#30363d;#30363d;#f2cc60;#f2cc60;#30363d;#30363d" keyTimes="0;0.111;0.1125;0.175;0.176;1" dur="8.0s" repeatCount="indefinite"/>
+            <animate attributeName="stroke-width" values="1;1;2;2;1;1" keyTimes="0;0.111;0.1125;0.175;0.176;1" dur="8.0s" repeatCount="indefinite"/>
+          </rect>
+          <text x="12.5" y="15" text-anchor="middle" font-size="12.5" font-weight="700" fill="#6e7681">
+            <animate attributeName="fill" values="#6e7681;#6e7681;#ffffff;#ffffff;#6e7681;#6e7681" keyTimes="0;0.111;0.1125;0.175;0.176;1" dur="8.0s" repeatCount="indefinite"/>
+            ㅏ
+          </text>
+        </g>
+        <g transform="translate(28.6, 0)">
+          <rect width="25" height="22" rx="4" fill="#161b22" stroke="#21262d" stroke-width="1"/>
+          <text x="12.5" y="15" text-anchor="middle" font-size="12.5" font-weight="600" fill="#8b949e">ㅐ</text>
+        </g>
+        <g transform="translate(57.1, 0)">
+          <rect width="25" height="22" rx="4" fill="#161b22" stroke="#21262d" stroke-width="1"/>
+          <text x="12.5" y="15" text-anchor="middle" font-size="12.5" font-weight="600" fill="#8b949e">ㅑ</text>
+        </g>
+        <g transform="translate(85.7, 0)">
+          <rect width="25" height="22" rx="4" fill="#161b22" stroke="#21262d" stroke-width="1"/>
+          <text x="12.5" y="15" text-anchor="middle" font-size="12.5" font-weight="600" fill="#8b949e">ㅒ</text>
+        </g>
+        <g transform="translate(114.2, 0)">
+          <rect width="25" height="22" rx="4" fill="#161b22" stroke="#21262d" stroke-width="1"/>
+          <text x="12.5" y="15" text-anchor="middle" font-size="12.5" font-weight="600" fill="#8b949e">ㅓ</text>
+        </g>
+        <g transform="translate(142.8, 0)">
+          <rect width="25" height="22" rx="4" fill="#161b22" stroke="#21262d" stroke-width="1"/>
+          <text x="12.5" y="15" text-anchor="middle" font-size="12.5" font-weight="600" fill="#8b949e">ㅔ</text>
+        </g>
+        <g transform="translate(171.3, 0)">
+          <rect width="25" height="22" rx="4" fill="#161b22" stroke="#21262d" stroke-width="1"/>
+          <text x="12.5" y="15" text-anchor="middle" font-size="12.5" font-weight="600" fill="#8b949e">ㅕ</text>
+        </g>
+        <g transform="translate(199.8, 0)">
+          <rect width="25" height="22" rx="4" fill="#161b22" stroke="#21262d" stroke-width="1"/>
+          <text x="12.5" y="15" text-anchor="middle" font-size="12.5" font-weight="600" fill="#8b949e">ㅖ</text>
+        </g>
+        <g transform="translate(228.4, 0)">
+          <rect width="25" height="22" rx="4" fill="#161b22" stroke="#21262d" stroke-width="1"/>
+          <text x="12.5" y="15" text-anchor="middle" font-size="12.5" font-weight="600" fill="#8b949e">ㅗ</text>
+        </g>
+        <g transform="translate(256.9, 0)">
+          <rect width="25" height="22" rx="4" fill="#161b22" stroke="#21262d" stroke-width="1"/>
+          <text x="12.5" y="15" text-anchor="middle" font-size="12.5" font-weight="600" fill="#8b949e">ㅘ</text>
+        </g>
+        <g transform="translate(285.5, 0)">
+          <rect width="25" height="22" rx="4" fill="#161b22" stroke="#21262d" stroke-width="1"/>
+          <text x="12.5" y="15" text-anchor="middle" font-size="12.5" font-weight="600" fill="#8b949e">ㅙ</text>
+        </g>
+        <g transform="translate(314.1, 0)">
+          <rect width="25" height="22" rx="4" fill="#161b22" stroke="#21262d" stroke-width="1"/>
+          <text x="12.5" y="15" text-anchor="middle" font-size="12.5" font-weight="600" fill="#8b949e">ㅚ</text>
+        </g>
+        <g transform="translate(342.6, 0)">
+          <rect width="25" height="22" rx="4" fill="#161b22" stroke="#21262d" stroke-width="1"/>
+          <text x="12.5" y="15" text-anchor="middle" font-size="12.5" font-weight="600" fill="#8b949e">ㅛ</text>
+        </g>
+        <g transform="translate(371.2, 0)">
+          <rect width="25" height="22" rx="4" fill="#161b22" stroke="#21262d" stroke-width="1"/>
+          <text x="12.5" y="15" text-anchor="middle" font-size="12.5" font-weight="600" fill="#8b949e">ㅜ</text>
+        </g>
+        <g transform="translate(399.7, 0)">
+          <rect width="25" height="22" rx="4" fill="#161b22" stroke="#21262d" stroke-width="1"/>
+          <text x="12.5" y="15" text-anchor="middle" font-size="12.5" font-weight="600" fill="#8b949e">ㅝ</text>
+        </g>
+        <g transform="translate(428.2, 0)">
+          <rect width="25" height="22" rx="4" fill="#161b22" stroke="#21262d" stroke-width="1"/>
+          <text x="12.5" y="15" text-anchor="middle" font-size="12.5" font-weight="600" fill="#8b949e">ㅞ</text>
+        </g>
+        <g transform="translate(456.8, 0)">
+          <rect width="25" height="22" rx="4" fill="#161b22" stroke="#21262d" stroke-width="1"/>
+          <text x="12.5" y="15" text-anchor="middle" font-size="12.5" font-weight="600" fill="#8b949e">ㅟ</text>
+        </g>
+        <g transform="translate(485.4, 0)">
+          <rect width="25" height="22" rx="4" fill="#161b22" stroke="#21262d" stroke-width="1"/>
+          <text x="12.5" y="15" text-anchor="middle" font-size="12.5" font-weight="600" fill="#8b949e">ㅠ</text>
+        </g>
+        <g transform="translate(513.9, 0)">
+          <rect width="25" height="22" rx="4" fill="#161b22" stroke="#30363d" stroke-width="1">
+            <animate attributeName="fill" values="#161b22;#161b22;#d29922;#d29922;#161b22;#161b22" keyTimes="0;0.411;0.4125;0.475;0.476;1" dur="8.0s" repeatCount="indefinite"/>
+            <animate attributeName="stroke" values="#30363d;#30363d;#f2cc60;#f2cc60;#30363d;#30363d" keyTimes="0;0.411;0.4125;0.475;0.476;1" dur="8.0s" repeatCount="indefinite"/>
+            <animate attributeName="stroke-width" values="1;1;2;2;1;1" keyTimes="0;0.411;0.4125;0.475;0.476;1" dur="8.0s" repeatCount="indefinite"/>
+          </rect>
+          <text x="12.5" y="15" text-anchor="middle" font-size="12.5" font-weight="700" fill="#6e7681">
+            <animate attributeName="fill" values="#6e7681;#6e7681;#ffffff;#ffffff;#6e7681;#6e7681" keyTimes="0;0.411;0.4125;0.475;0.476;1" dur="8.0s" repeatCount="indefinite"/>
+            ㅡ
+          </text>
+        </g>
+        <g transform="translate(542.5, 0)">
+          <rect width="25" height="22" rx="4" fill="#161b22" stroke="#21262d" stroke-width="1"/>
+          <text x="12.5" y="15" text-anchor="middle" font-size="12.5" font-weight="600" fill="#8b949e">ㅢ</text>
+        </g>
+        <g transform="translate(571.0, 0)">
+          <rect width="25" height="22" rx="4" fill="#161b22" stroke="#21262d" stroke-width="1"/>
+          <text x="12.5" y="15" text-anchor="middle" font-size="12.5" font-weight="600" fill="#8b949e">ㅣ</text>
+        </g>
+      </g>
+    </g>
+
+    <!-- ROW 3: FINAL CONSONANTS -->
+    <g transform="translate(18, 98)">
+      <rect x="0" y="-1" width="86" height="22" rx="4" fill="#238636" fill-opacity="0.15" stroke="#238636" stroke-width="0.8"/>
+      <text x="43.0" y="14" text-anchor="middle" font-size="9.5" font-weight="700" fill="#3fb950">FINAL (27)</text>
+      <g transform="translate(98, 0)">
+        <g transform="translate(0, 0)">
+          <rect width="40" height="22" rx="3" fill="#161b22" stroke="#21262d" stroke-width="1"/>
+          <text x="20.0" y="14" text-anchor="middle" font-size="9" font-weight="700" fill="#8b949e">(none)</text>
+        </g>
+        <g transform="translate(48.0, 0)">
+          <rect width="18" height="22" rx="3" fill="#161b22" stroke="#21262d" stroke-width="1"/>
+          <text x="9.0" y="15" text-anchor="middle" font-size="11" font-weight="600" fill="#8b949e">ㄱ</text>
+        </g>
+        <g transform="translate(68.4, 0)">
+          <rect width="18" height="22" rx="3" fill="#161b22" stroke="#30363d" stroke-width="1">
+            <animate attributeName="fill" values="#161b22;#161b22;#238636;#238636;#161b22;#161b22" keyTimes="0;0.186;0.1875;0.250;0.251;1" dur="8.0s" repeatCount="indefinite"/>
+            <animate attributeName="stroke" values="#30363d;#30363d;#56d364;#56d364;#30363d;#30363d" keyTimes="0;0.186;0.1875;0.250;0.251;1" dur="8.0s" repeatCount="indefinite"/>
+            <animate attributeName="stroke-width" values="1;1;2;2;1;1" keyTimes="0;0.186;0.1875;0.250;0.251;1" dur="8.0s" repeatCount="indefinite"/>
+          </rect>
+          <text x="9.0" y="15" text-anchor="middle" font-size="11.5" font-weight="700" fill="#6e7681">
+            <animate attributeName="fill" values="#6e7681;#6e7681;#ffffff;#ffffff;#6e7681;#6e7681" keyTimes="0;0.186;0.1875;0.250;0.251;1" dur="8.0s" repeatCount="indefinite"/>
+            ㄴ
+          </text>
+        </g>
+        <g transform="translate(88.8, 0)">
+          <rect width="18" height="22" rx="3" fill="#161b22" stroke="#21262d" stroke-width="1"/>
+          <text x="9.0" y="15" text-anchor="middle" font-size="11" font-weight="600" fill="#8b949e">ㄷ</text>
+        </g>
+        <g transform="translate(109.2, 0)">
+          <rect width="18" height="22" rx="3" fill="#161b22" stroke="#30363d" stroke-width="1">
+            <animate attributeName="fill" values="#161b22;#161b22;#238636;#238636;#161b22;#161b22" keyTimes="0;0.486;0.4875;0.550;0.551;1" dur="8.0s" repeatCount="indefinite"/>
+            <animate attributeName="stroke" values="#30363d;#30363d;#56d364;#56d364;#30363d;#30363d" keyTimes="0;0.486;0.4875;0.550;0.551;1" dur="8.0s" repeatCount="indefinite"/>
+            <animate attributeName="stroke-width" values="1;1;2;2;1;1" keyTimes="0;0.486;0.4875;0.550;0.551;1" dur="8.0s" repeatCount="indefinite"/>
+          </rect>
+          <text x="9.0" y="15" text-anchor="middle" font-size="11.5" font-weight="700" fill="#6e7681">
+            <animate attributeName="fill" values="#6e7681;#6e7681;#ffffff;#ffffff;#6e7681;#6e7681" keyTimes="0;0.486;0.4875;0.550;0.551;1" dur="8.0s" repeatCount="indefinite"/>
+            ㄹ
+          </text>
+        </g>
+        <g transform="translate(129.5, 0)">
+          <rect width="18" height="22" rx="3" fill="#161b22" stroke="#21262d" stroke-width="1"/>
+          <text x="9.0" y="15" text-anchor="middle" font-size="11" font-weight="600" fill="#8b949e">ㅁ</text>
+        </g>
+        <g transform="translate(149.9, 0)">
+          <rect width="18" height="22" rx="3" fill="#161b22" stroke="#21262d" stroke-width="1"/>
+          <text x="9.0" y="15" text-anchor="middle" font-size="11" font-weight="600" fill="#8b949e">ㅂ</text>
+        </g>
+        <g transform="translate(170.3, 0)">
+          <rect width="18" height="22" rx="3" fill="#161b22" stroke="#21262d" stroke-width="1"/>
+          <text x="9.0" y="15" text-anchor="middle" font-size="11" font-weight="600" fill="#8b949e">ㅅ</text>
+        </g>
+        <g transform="translate(190.7, 0)">
+          <rect width="18" height="22" rx="3" fill="#161b22" stroke="#21262d" stroke-width="1"/>
+          <text x="9.0" y="15" text-anchor="middle" font-size="11" font-weight="600" fill="#8b949e">ㅇ</text>
+        </g>
+        <g transform="translate(211.1, 0)">
+          <rect width="18" height="22" rx="3" fill="#161b22" stroke="#21262d" stroke-width="1"/>
+          <text x="9.0" y="15" text-anchor="middle" font-size="11" font-weight="600" fill="#8b949e">ㅈ</text>
+        </g>
+        <g transform="translate(231.5, 0)">
+          <rect width="18" height="22" rx="3" fill="#161b22" stroke="#21262d" stroke-width="1"/>
+          <text x="9.0" y="15" text-anchor="middle" font-size="11" font-weight="600" fill="#8b949e">ㅊ</text>
+        </g>
+        <g transform="translate(251.8, 0)">
+          <rect width="18" height="22" rx="3" fill="#161b22" stroke="#21262d" stroke-width="1"/>
+          <text x="9.0" y="15" text-anchor="middle" font-size="11" font-weight="600" fill="#8b949e">ㅋ</text>
+        </g>
+        <g transform="translate(272.2, 0)">
+          <rect width="18" height="22" rx="3" fill="#161b22" stroke="#21262d" stroke-width="1"/>
+          <text x="9.0" y="15" text-anchor="middle" font-size="11" font-weight="600" fill="#8b949e">ㅌ</text>
+        </g>
+        <g transform="translate(292.6, 0)">
+          <rect width="18" height="22" rx="3" fill="#161b22" stroke="#21262d" stroke-width="1"/>
+          <text x="9.0" y="15" text-anchor="middle" font-size="11" font-weight="600" fill="#8b949e">ㅍ</text>
+        </g>
+        <g transform="translate(313.0, 0)">
+          <rect width="18" height="22" rx="3" fill="#161b22" stroke="#21262d" stroke-width="1"/>
+          <text x="9.0" y="15" text-anchor="middle" font-size="11" font-weight="600" fill="#8b949e">ㅎ</text>
+        </g>
+        <g transform="translate(333.4, 0)">
+          <rect width="18" height="22" rx="3" fill="#161b22" stroke="#21262d" stroke-width="1"/>
+          <text x="9.0" y="15" text-anchor="middle" font-size="11" font-weight="600" fill="#8b949e">ㄲ</text>
+        </g>
+        <g transform="translate(353.8, 0)">
+          <rect width="18" height="22" rx="3" fill="#161b22" stroke="#21262d" stroke-width="1"/>
+          <text x="9.0" y="15" text-anchor="middle" font-size="11" font-weight="600" fill="#8b949e">ㅆ</text>
+        </g>
+        <g transform="translate(374.2, 0)">
+          <rect width="18" height="22" rx="3" fill="#161b22" stroke="#21262d" stroke-width="1"/>
+          <text x="9.0" y="15" text-anchor="middle" font-size="11" font-weight="600" fill="#8b949e">ㄳ</text>
+        </g>
+        <g transform="translate(394.5, 0)">
+          <rect width="18" height="22" rx="3" fill="#161b22" stroke="#21262d" stroke-width="1"/>
+          <text x="9.0" y="15" text-anchor="middle" font-size="11" font-weight="600" fill="#8b949e">ㄵ</text>
+        </g>
+        <g transform="translate(414.9, 0)">
+          <rect width="18" height="22" rx="3" fill="#161b22" stroke="#21262d" stroke-width="1"/>
+          <text x="9.0" y="15" text-anchor="middle" font-size="11" font-weight="600" fill="#8b949e">ㄶ</text>
+        </g>
+        <g transform="translate(435.3, 0)">
+          <rect width="18" height="22" rx="3" fill="#161b22" stroke="#21262d" stroke-width="1"/>
+          <text x="9.0" y="15" text-anchor="middle" font-size="11" font-weight="600" fill="#8b949e">ㄺ</text>
+        </g>
+        <g transform="translate(455.7, 0)">
+          <rect width="18" height="22" rx="3" fill="#161b22" stroke="#21262d" stroke-width="1"/>
+          <text x="9.0" y="15" text-anchor="middle" font-size="11" font-weight="600" fill="#8b949e">ㄻ</text>
+        </g>
+        <g transform="translate(476.1, 0)">
+          <rect width="18" height="22" rx="3" fill="#161b22" stroke="#21262d" stroke-width="1"/>
+          <text x="9.0" y="15" text-anchor="middle" font-size="11" font-weight="600" fill="#8b949e">ㄼ</text>
+        </g>
+        <g transform="translate(496.5, 0)">
+          <rect width="18" height="22" rx="3" fill="#161b22" stroke="#21262d" stroke-width="1"/>
+          <text x="9.0" y="15" text-anchor="middle" font-size="11" font-weight="600" fill="#8b949e">ㄽ</text>
+        </g>
+        <g transform="translate(516.8, 0)">
+          <rect width="18" height="22" rx="3" fill="#161b22" stroke="#21262d" stroke-width="1"/>
+          <text x="9.0" y="15" text-anchor="middle" font-size="11" font-weight="600" fill="#8b949e">ㄾ</text>
+        </g>
+        <g transform="translate(537.2, 0)">
+          <rect width="18" height="22" rx="3" fill="#161b22" stroke="#21262d" stroke-width="1"/>
+          <text x="9.0" y="15" text-anchor="middle" font-size="11" font-weight="600" fill="#8b949e">ㄿ</text>
+        </g>
+        <g transform="translate(557.6, 0)">
+          <rect width="18" height="22" rx="3" fill="#161b22" stroke="#21262d" stroke-width="1"/>
+          <text x="9.0" y="15" text-anchor="middle" font-size="11" font-weight="600" fill="#8b949e">ㅀ</text>
+        </g>
+        <g transform="translate(578.0, 0)">
+          <rect width="18" height="22" rx="3" fill="#161b22" stroke="#21262d" stroke-width="1"/>
+          <text x="9.0" y="15" text-anchor="middle" font-size="11" font-weight="600" fill="#8b949e">ㅄ</text>
+        </g>
+      </g>
+    </g>
+  </g>
+
+  <!-- ================= TIER 3: SCALE PARADOX (Flush & Filled Matrix Wall) ================= -->
+  <g transform="translate(35, 408)">
+    <rect width="730" height="336" rx="10" fill="#0d1117" stroke="#30363d" stroke-width="1.5"/>
+
+    <!-- Section Header -->
+    <g transform="translate(18, 18)">
+      <circle cx="0" cy="0" r="4" fill="#f85149"/>
+      <text x="10" y="4" font-size="11" font-weight="700" fill="#ff7b72" letter-spacing="0.05em">SCALE PARADOX : 11,172 MEANINGLESS OPAQUE BLOBS vs 67 MODULAR ALPHABET SYMBOLS</text>
+    </g>
+    <line x1="18" y1="28" x2="712" y2="28" stroke="#21262d" stroke-width="1"/>
+
+    <!-- LEFT (500px width): 12 DENSE ROWS FLUSH -->
+    <g transform="translate(18, 38)">
+      <rect width="500" height="282" rx="6" fill="#161b22" fill-opacity="0.6" stroke="#da3633" stroke-width="0.8" stroke-opacity="0.4"/>
+
+      <!-- Top Title Inside Wall -->
+      <rect x="8" y="7" width="220" height="17" rx="3" fill="#da3633" fill-opacity="0.15"/>
+      <text x="14" y="19" font-size="9" font-weight="700" fill="#ff7b72">🔴 11,172 STANDALONE PICTURES</text>
+      <text x="492" y="19" text-anchor="end" font-size="8.5" fill="#8b949e">Unicode U+AC00 ~ U+D7A3</text>
+
+      <!-- Upper 6 Dense Matrix Rows -->
+      <g font-family="monospace, 'Malgun Gothic', 'Noto Sans KR'" font-size="8.5" fill="#8b949e" opacity="0.65">
+        <text x="10" y="37" textLength="480" lengthAdjust="spacing">가각갂갃간갅갆갇갈갉갊갋갌갍갎갏감갑값갓갔강갖갗갘같갚갛개객갞갟갠갡갢갣갤갥갦갧갨갩갪갫갬갭갮갯갰갱갲갳갴갵갶갷</text>
+        <text x="10" y="51" textLength="480" lengthAdjust="spacing">갸갹갺갻갼갽갾갿걀걁걂걃걄걅걆걇걈걉걊걋걌걍걎걏걐걑걒걓걔걕걖걗걘걙걚걛걜걝걞걟걠걡걢걣걤걥걦걧걨걩걪걫걬걭걮걯</text>
+        <text x="10" y="65" textLength="480" lengthAdjust="spacing">거걱걲걳건걵걶걷걸걹걺걻걼걽걾걿검겁겂것겄겅겆겇겈겉겊겋게겍겎겏겐겑겒겓겔겕겖겗겘겙겚겛겜겝겞겟겠겡겢겣겤겥겦겧</text>
+        <text x="10" y="79" textLength="480" lengthAdjust="spacing">겨격겪겫견겭겮겯결겱겲겳겴겵겶겷겸겹겺겻겼경겾겿곀곁곂곃계곅곆곇곈곉곊곋곌곍곎곏곐곑곒곓곔곕곖곗곘곙곚곛곜곝곞곟</text>
+        <text x="10" y="93" textLength="480" lengthAdjust="spacing">고곡곢곣곤곥곦곧골곩곪곫곬곭곮곯곰곱곲곳곴공곶곷곸곹곺곻과곽곾곿관괁괂괃괄괅괆괇괈괉괊괋괌괍괎괏괐광괒괓괔괕괖괗</text>
+        <text x="10" y="107" textLength="480" lengthAdjust="spacing">괘괙괚괛괜괝괞괟괠괡괢괣괤괥괦괧괨괩괪괫괬괭괮괯괰괱괲괳괴괵괶괷괸괹괺괻괼괽괾괿굀굁굂굃굄굅굆굇굈굉굊굋굌굍굎굏</text>
+      </g>
+
+      <!-- Subdued 1-Line Truncation Divider -->
+      <g transform="translate(8, 118)">
+        <rect width="484" height="22" rx="4" fill="#0d1117" stroke="#30363d" stroke-width="0.8"/>
+        <text x="242" y="15" text-anchor="middle" font-size="9" font-weight="600" fill="#8b949e" letter-spacing="0.05em">
+          ··· [ 10,800+ SYLLABLES TRUNCATED : 11,172 OPAQUE STANDALONE BLOBS ] ···
+        </text>
+      </g>
+
+      <!-- Lower 6 Dense Matrix Rows -->
+      <g font-family="monospace, 'Malgun Gothic', 'Noto Sans KR'" font-size="8.5" fill="#8b949e" opacity="0.65">
+        <text x="10" y="154" textLength="480" lengthAdjust="spacing">픤픥픦픧픨픩픪픫픬픭픮픯픰픱픲픳픴픵픶픷픸픹픺픻피픽픾픿핀핁핂핃필핅핆핇핈핉핊핋핌핍핎핏핐핑핒핓핔핕핖핗하학핚핛</text>
+        <text x="10" y="168" textLength="480" lengthAdjust="spacing">한핝핞핟할핡핢핣핤핥핦핧함합핪핫핬항핮핯핰핱핲핳해핵핶핷핸핹핺핻핼핽핾핿햀햁햂햃햄햅햆햇했행햊햋햌햍햎햏햐햑햒햓</text>
+        <text x="10" y="182" textLength="480" lengthAdjust="spacing">햔햕햖햗햘햙햚햛햜햝햞햟햠햡햢햣햤향햦햧햨햩햪햫햬햭햮햯햰햱햲햳햴햵햶햷햸햹햺햻햼햽햾햿헀헁헂헃헄헅헆헇허헉헊헋</text>
+        <text x="10" y="196" textLength="480" lengthAdjust="spacing">헌헍헎헏헐헑헒헓헔헕헖헗험헙헚헛헜헝헞헟헠헡헢헣헤헥헦헧헨헩헪헫헬헭헮헯헰헱헲헳헴헵헶헷헸헹헺헻헼헽헾헿혀혁혂혃</text>
+        <text x="10" y="210" textLength="480" lengthAdjust="spacing">현혅혆혇혈혉혊혋혌혍혎혏혐협혒혓혔형혖혗혘혙혚혛혜혝혞혟혠혡혢혣혤혥혦혧혨혩혪혫혬혭혮혯혰혱혲혳혴혵혶혷호혹혺혻</text>
+        <text x="10" y="224" textLength="480" lengthAdjust="spacing">희흭흮흯흰흱흲흳흴흵흶흷흸흹흺흻흼흽흾흿힀힁힂힃힄힅힆힇히힉힊힋힌힍힎힏힐힑힒힓힔힕힖힗힘힙힚힛힜힝힞힟힠힡힢힣</text>
+      </g>
+
+      <!-- Bottom Warning Bar -->
+      <rect x="8" y="246" width="484" height="26" rx="4" fill="#0d1117" stroke="#da3633" stroke-width="0.8"/>
+      <text x="250" y="263" text-anchor="middle" font-size="9" fill="#f85149" font-weight="700">
+        ⚠️ 99.4% Syllables Missing in Standard Vocabs → 6.0× ~ 9.3× Token Inflation
+      </text>
+    </g>
+
+    <!-- RIGHT (186px width, Exactly Aligned to x=526): 67-TOKEN COMPRESSION + LIVE HUD -->
+    <g transform="translate(526, 38)">
+      <!-- Top Card: Modular Summary -->
+      <g>
+        <rect width="186" height="110" rx="6" fill="url(#card-glow-blue)" stroke="#1f6feb" stroke-width="1.2"/>
+        <rect x="7" y="6" width="172" height="18" rx="3" fill="#1f6feb" fill-opacity="0.2"/>
+        <text x="93" y="18" text-anchor="middle" font-size="9" font-weight="800" fill="#58a6ff" letter-spacing="0.05em">
+          ⚡ 67-TOKEN COMPRESSION
+        </text>
+
+        <g transform="translate(7, 27)">
+          <rect x="0" y="0" width="172" height="14" rx="3" fill="#1f6feb" fill-opacity="0.15" stroke="#1f6feb" stroke-width="0.8"/>
+          <text x="6" y="10.5" font-size="8.5" font-weight="700" fill="#79c0ff">INITIAL : 19 TOKENS</text>
+          <text x="166" y="10.5" text-anchor="end" font-size="8.5" font-weight="700" fill="#f0f6fc">27.9%</text>
+
+          <rect x="0" y="17" width="172" height="14" rx="3" fill="#d29922" fill-opacity="0.15" stroke="#d29922" stroke-width="0.8"/>
+          <text x="6" y="27.5" font-size="8.5" font-weight="700" fill="#f2cc60">VOWEL   : 21 TOKENS</text>
+          <text x="166" y="27.5" text-anchor="end" font-size="8.5" font-weight="700" fill="#f0f6fc">30.9%</text>
+
+          <rect x="0" y="34" width="172" height="14" rx="3" fill="#238636" fill-opacity="0.15" stroke="#238636" stroke-width="0.8"/>
+          <text x="6" y="44.5" font-size="8.5" font-weight="700" fill="#56d364">FINAL   : 28 TOKENS</text>
+          <text x="166" y="44.5" text-anchor="end" font-size="8.5" font-weight="700" fill="#f0f6fc">41.2%</text>
+        </g>
+
+        <rect x="7" y="81" width="172" height="22" rx="4" fill="#238636" fill-opacity="0.3" stroke="#3fb950" stroke-width="1"/>
+        <text x="93" y="95" text-anchor="middle" font-size="9.5" font-weight="900" fill="#56d364">
+          ✨ 100% COVERAGE (67 Symbols)
+        </text>
+      </g>
+
+      <!-- Bottom Card: Terminal HUD -->
+      <g transform="translate(0, 116)">
+        <rect width="186" height="166" rx="6" fill="#10151d" stroke="#30363d" stroke-width="1.2"/>
+        <rect x="0" y="0" width="186" height="20" rx="6" fill="#161b22"/>
+        <circle cx="10" cy="10" r="3" fill="#f85149"/>
+        <circle cx="18" cy="10" r="3" fill="#d29922"/>
+        <circle cx="26" cy="10" r="3" fill="#2ea043"/>
+        <text x="100" y="14" text-anchor="middle" font-size="8.5" font-weight="700" fill="#8b949e" letter-spacing="0.05em">LIVE KEYSTREAM HUD</text>
+
+        <g font-family="monospace" font-size="8.2" transform="translate(8, 25)">
+          <g opacity="0">
+            <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.036;0.0375;0.916;0.95;1" dur="8.0s" repeatCount="indefinite"/>
+            <text x="0" y="10" fill="#79c0ff">&gt; 0.3s: INJECT ㅎ (#13)</text>
+          </g>
+          <g opacity="0">
+            <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.111;0.1125;0.916;0.95;1" dur="8.0s" repeatCount="indefinite"/>
+            <text x="0" y="23.5" fill="#f2cc60">&gt; 0.9s: INJECT ㅏ (#0)</text>
+          </g>
+          <g opacity="0">
+            <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.186;0.1875;0.916;0.95;1" dur="8.0s" repeatCount="indefinite"/>
+            <text x="0" y="37" fill="#56d364">&gt; 1.5s: INJECT ㄴ (#1)</text>
+          </g>
+          <g opacity="0">
+            <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.261;0.2625;0.916;0.95;1" dur="8.0s" repeatCount="indefinite"/>
+            <text x="0" y="50.5" fill="#58a6ff" font-weight="700">&gt;&gt; ASSEMBLE: [한] U+D55C</text>
+          </g>
+          <g opacity="0">
+            <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.336;0.3375;0.916;0.95;1" dur="8.0s" repeatCount="indefinite"/>
+            <text x="0" y="64" fill="#79c0ff">&gt; 2.7s: INJECT ㄱ (#0)</text>
+          </g>
+          <g opacity="0">
+            <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.411;0.4125;0.916;0.95;1" dur="8.0s" repeatCount="indefinite"/>
+            <text x="0" y="77.5" fill="#f2cc60">&gt; 3.3s: INJECT ㅡ (#18)</text>
+          </g>
+          <g opacity="0">
+            <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.486;0.4875;0.916;0.95;1" dur="8.0s" repeatCount="indefinite"/>
+            <text x="0" y="91" fill="#56d364">&gt; 3.9s: INJECT ㄹ (#3)</text>
+          </g>
+          <g opacity="0">
+            <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.561;0.5625;0.916;0.95;1" dur="8.0s" repeatCount="indefinite"/>
+            <text x="0" y="104.5" fill="#58a6ff" font-weight="700">&gt;&gt; ASSEMBLE: [글] U+AE00</text>
+          </g>
+          <g opacity="0">
+            <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.599;0.600;0.916;0.95;1" dur="8.0s" repeatCount="indefinite"/>
+            <text x="0" y="122" fill="#56d364" font-weight="900">&gt; [OK] ✨ 한글 COMPLETE</text>
+          </g>
+        </g>
+      </g>
+    </g>
+  </g>
+
+  <!-- ================= TIER 4: HARD NUMBERS SHOWDOWN ================= -->
+  <g transform="translate(35, 756)">
+    <rect width="730" height="100" rx="10" fill="#0d1117" stroke="#30363d" stroke-width="1.5"/>
+
+    <!-- Section Header -->
+    <g transform="translate(18, 17)">
+      <circle cx="0" cy="0" r="4" fill="#388bfd"/>
+      <text x="10" y="4" font-size="10.5" font-weight="700" fill="#58a6ff" letter-spacing="0.05em">VOCABULARY PARADOX SHOWDOWN : TOKENS REQUIRED</text>
+    </g>
+    <line x1="18" y1="26" x2="712" y2="26" stroke="#21262d" stroke-width="1"/>
+
+    <!-- LEFT (458px width): Red 11,172 Meaningless Syllable Tokens -->
+    <g transform="translate(18, 34)">
+      <rect width="458" height="54" rx="6" fill="#da3633" fill-opacity="0.15" stroke="#da3633" stroke-width="1.2"/>
+      <text x="229" y="27" text-anchor="middle" font-size="15" font-weight="900" fill="#ff7b72" letter-spacing="0.02em" filter="url(#glow-red-strong)">🔴 11,172 MEANINGLESS TOKENS</text>
+      <text x="229" y="44" text-anchor="middle" font-size="10" font-weight="700" fill="#8b949e">Brute-Force Memorization · 99.4% Syllables Missing</text>
+    </g>
+
+    <!-- CENTER: PROMINENT GLOWING VS BATTLE MEDALLION -->
+    <g transform="translate(501, 61)">
+      <circle cx="0" cy="0" r="16" fill="#161b22" stroke="#f0f6fc" stroke-width="2" filter="url(#glow-white)"/>
+      <circle cx="0" cy="0" r="12" fill="#21262d"/>
+      <text x="0" y="4" text-anchor="middle" font-size="10.5" font-weight="900" fill="#ffffff" letter-spacing="0.05em">VS</text>
+    </g>
+
+    <!-- RIGHT (186px width, Exactly Aligned to x=526 with Tier 3 above!): Green 67 Symbols -->
+    <g transform="translate(526, 34)">
+      <rect width="186" height="54" rx="6" fill="#238636" fill-opacity="0.22" stroke="#3fb950" stroke-width="1.5" filter="url(#glow-green)"/>
+      <text x="93" y="26" text-anchor="middle" font-size="16" font-weight="900" fill="#56d364" letter-spacing="0.02em">🟢 67 SYMBOLS</text>
+      <text x="93" y="44" text-anchor="middle" font-size="9.5" font-weight="800" fill="#7ee787">100% MODULAR ALPHABET</text>
+    </g>
+  </g>
+
+  <!-- ================= TIER 5: KEY POINT & RFC BANNER ================= -->
+  <g transform="translate(35, 868)">
+    <rect width="730" height="66" rx="10" fill="#161b22" stroke="#1f6feb" stroke-width="1.2" filter="url(#glow-blue)"/>
+
+    <!-- Left Icon & Header -->
+    <g transform="translate(16, 20)">
+      <rect x="0" y="-1" width="84" height="18" rx="9" fill="#1f6feb" fill-opacity="0.2" stroke="#388bfd" stroke-width="0.8"/>
+      <text x="42" y="12" text-anchor="middle" font-size="9.5" font-weight="800" fill="#79c0ff" letter-spacing="0.05em">💡 KEY POINT</text>
+      <text x="96" y="12" font-size="12" font-weight="700" fill="#f0f6fc">
+        Korean is a modular alphabet. 11,172 standalone tokens is like English without the alphabet.
+      </text>
+    </g>
+
+    <!-- Sub Solution Line -->
+    <g transform="translate(16, 46)">
+      <text x="0" y="9" font-size="10.5" fill="#c9d1d9">
+        <tspan fill="#56d364" font-weight="700">Solution:</tspan> Add ~10 lines of modular pre-tokenization → 0% token explosion &amp; 100% structural awareness.
+      </text>
+      <text x="698" y="9" text-anchor="end" font-size="8.5" font-weight="700" fill="#58a6ff">github.com/nicezic/KOREAN-tokenizer</text>
+    </g>
+  </g>
+</svg>
