@@ -27,7 +27,8 @@ def is_jamo(char):
 
 def vocab_anatomy(processor):
     atomic = set()
-    multi = jamo = 0
+    recomposed_atomic = set()
+    multi = recomposed_multi = jamo = max_recomposed_syllables = 0
     for piece_id in range(processor.vocab_size()):
         piece = processor.id_to_piece(piece_id).replace("▁", "")
         syllables = sum(map(is_syllable, piece))
@@ -37,11 +38,23 @@ def vocab_anatomy(processor):
             multi += 1
         if any(map(is_jamo, piece)):
             jamo += 1
+
+        recomposed = unicodedata.normalize("NFC", piece)
+        recomposed_syllables = sum(map(is_syllable, recomposed))
+        max_recomposed_syllables = max(max_recomposed_syllables, recomposed_syllables)
+        if recomposed_syllables == 1 and len(recomposed) == 1:
+            recomposed_atomic.add(recomposed)
+        elif recomposed_syllables >= 2:
+            recomposed_multi += 1
+
     return {
         "vocab_size": processor.vocab_size(),
         "atomic_syllables": len(atomic),
         "multi_syllable_merges": multi,
         "jamo_pieces": jamo,
+        "recomposed_atomic_syllables": len(recomposed_atomic),
+        "recomposed_multi_syllable_merges": recomposed_multi,
+        "max_recomposed_syllables_per_piece": max_recomposed_syllables,
     }
 
 
@@ -89,38 +102,49 @@ def corpus_metrics(processor, path):
     }
 
 
-def seen_training_syllables(path):
-    seen = set()
+def syllable_counts(path):
+    counts = Counter()
     with path.open(encoding="utf-8") as source:
         for line in source:
-            seen.update(char for char in line if is_syllable(char))
-    return seen
+            counts.update(char for char in line if is_syllable(char))
+    return counts
 
 
-def unseen_metrics(processor, test_path, seen):
-    unseen = Counter()
-    with test_path.open(encoding="utf-8") as source:
-        for line in source:
-            unseen.update(char for char in line if is_syllable(char) and char not in seen)
-    unk_id = processor.unk_id()
-    weighted_tokens = weighted_unknown = 0
+def rare_tail_metrics(processor, train_counts, test_counts, max_train_occurrences=5):
+    rare_train = {char for char, occurrences in train_counts.items() if occurrences <= max_train_occurrences}
+    test_rare = Counter({char: test_counts[char] for char in rare_train if test_counts[char]})
+    unseen = Counter({char: occurrences for char, occurrences in test_counts.items() if not train_counts[char]})
+
+    weighted_tokens = weighted_byte_tokens = 0
     examples = []
-    for char, occurrences in unseen.most_common():
-        ids = processor.encode(char, out_type=int)
-        weighted_tokens += len(ids) * occurrences
-        weighted_unknown += ids.count(unk_id) * occurrences
+    for char, test_occurrences in test_rare.most_common():
+        pieces = processor.encode(char, out_type=str)
+        weighted_tokens += len(pieces) * test_occurrences
+        weighted_byte_tokens += sum(piece.startswith("<0x") for piece in pieces) * test_occurrences
         if len(examples) < 20:
             examples.append(
-                {"syllable": char, "occurrences": occurrences, "pieces": processor.encode(char, out_type=str)}
+                {
+                    "syllable": char,
+                    "train_occurrences": train_counts[char],
+                    "test_occurrences": test_occurrences,
+                    "pieces": pieces,
+                }
             )
-    total_occurrences = sum(unseen.values())
+
+    total_rare_occurrences = sum(test_rare.values())
     return {
-        "unique_unseen_syllables": len(unseen),
-        "unseen_occurrences": total_occurrences,
-        "mean_tokens_per_unseen_occurrence": round(weighted_tokens / total_occurrences, 4)
-        if total_occurrences
+        "max_train_occurrences": max_train_occurrences,
+        "rare_train_types": len(rare_train),
+        "test_rare_types": len(test_rare),
+        "test_rare_occurrences": total_rare_occurrences,
+        "mean_isolated_tokens_per_rare_occurrence": round(weighted_tokens / total_rare_occurrences, 4)
+        if total_rare_occurrences
         else None,
-        "unknown_occurrence_rate": round(weighted_unknown / total_occurrences, 4) if total_occurrences else None,
+        "mean_byte_tokens_per_rare_occurrence": round(weighted_byte_tokens / total_rare_occurrences, 4)
+        if total_rare_occurrences
+        else None,
+        "unique_unseen_syllables": len(unseen),
+        "unseen_occurrences": sum(unseen.values()),
         "examples": examples,
     }
 
@@ -140,7 +164,7 @@ def sample_metrics(processor):
     }
 
 
-def evaluate(name, model_path, train_path, test_path, seen):
+def evaluate(name, model_path, test_path, train_counts, test_counts):
     processor = spm.SentencePieceProcessor(model_file=str(model_path))
     return {
         "name": name,
@@ -149,7 +173,7 @@ def evaluate(name, model_path, train_path, test_path, seen):
         "vocab": vocab_anatomy(processor),
         "readme_sample": sample_metrics(processor),
         "held_out": corpus_metrics(processor, test_path),
-        "rare_unseen": unseen_metrics(processor, test_path, seen),
+        "rare_tail": rare_tail_metrics(processor, train_counts, test_counts),
     }
 
 
@@ -161,22 +185,23 @@ def main():
     parser.add_argument("--output", type=Path, default=Path("data/sentencepiece_results.json"))
     args = parser.parse_args()
 
-    seen = seen_training_syllables(args.train)
+    train_counts = syllable_counts(args.train)
+    test_counts = syllable_counts(args.test)
     results = {
         "sentencepiece_version": spm.__version__,
         "datasets": {"train": dataset_metadata(args.train), "test": dataset_metadata(args.test)},
-        "training_seen_hangul_syllables": len(seen),
-        "baseline": evaluate("baseline", args.models_dir / "baseline.model", args.train, args.test, seen),
-        "jamo": evaluate("jamo", args.models_dir / "jamo.model", args.train, args.test, seen),
+        "training_seen_hangul_syllables": len(train_counts),
+        "baseline": evaluate("baseline", args.models_dir / "baseline.model", args.test, train_counts, test_counts),
+        "jamo": evaluate("jamo", args.models_dir / "jamo.model", args.test, train_counts, test_counts),
         "controls": {},
         "auxiliary": {},
     }
     nfkc_model = args.models_dir / "nfkc.model"
     if nfkc_model.exists():
-        results["controls"]["nfkc"] = evaluate("nfkc", nfkc_model, args.train, args.test, seen)
+        results["controls"]["nfkc"] = evaluate("nfkc", nfkc_model, args.test, train_counts, test_counts)
     for model_path in sorted(args.models_dir.glob("jamo-*.model")):
         name = model_path.stem
-        results["auxiliary"][name] = evaluate(name, model_path, args.train, args.test, seen)
+        results["auxiliary"][name] = evaluate(name, model_path, args.test, train_counts, test_counts)
     args.output.write_text(json.dumps(results, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(results, ensure_ascii=False, indent=2))
 

@@ -1,5 +1,8 @@
+from collections import Counter
+
 import pytest
 
+from compare_sentencepiece import rare_tail_metrics
 from extract_wikipedia import clean_wikitext
 from split_corpus import is_test_document, iter_documents
 from train_sentencepiece import (
@@ -61,3 +64,27 @@ def test_normalization_contract_and_auxiliary_name():
 
     with pytest.raises(RuntimeError):
         assert_normalization_contract(baseline, {**jamo, "nfd_normalized": "▁한"})
+
+
+def test_rare_tail_metrics_counts_fragmentation_and_unseen():
+    class FakeProcessor:
+        pieces = {
+            "가": ["▁가"],
+            "각": ["▁", "<0xE1>", "<0x84>", "<0x80>"],
+        }
+
+        def encode(self, text, out_type=str):
+            assert out_type is str
+            return self.pieces[text]
+
+    train = Counter({"가": 5, "각": 1, "나": 6})
+    test = Counter({"가": 2, "각": 1, "나": 3, "닭": 4})
+    metrics = rare_tail_metrics(FakeProcessor(), train, test)
+
+    assert metrics["rare_train_types"] == 2
+    assert metrics["test_rare_types"] == 2
+    assert metrics["test_rare_occurrences"] == 3
+    assert metrics["mean_isolated_tokens_per_rare_occurrence"] == 2.0
+    assert metrics["mean_byte_tokens_per_rare_occurrence"] == 1.0
+    assert metrics["unique_unseen_syllables"] == 1
+    assert metrics["unseen_occurrences"] == 4
