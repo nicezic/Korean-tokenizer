@@ -16,7 +16,7 @@ def main(encoding_names):
     for name in encoding_names:
         enc = tiktoken.get_encoding(name)
         stats = summarize_vocab(safe_decode(enc, i) for i in range(enc.n_vocab))
-        print_report(name, stats, "none (byte-level BPE)", lambda t: len(enc.encode(t)))
+        print_report(name, stats, "none (byte-level BPE)", lambda t, enc=enc: len(enc.encode(t)))
 
 
 if __name__ == "__main__":

@@ -35,7 +35,7 @@ def byte_to_unicode_table():
             byte_set.append(b)
             code_points.append(256 + offset)
             offset += 1
-    return {chr(c): b for c, b in zip(code_points, byte_set)}
+    return {chr(c): b for c, b in zip(code_points, byte_set, strict=True)}
 
 
 def summarize_vocab(byte_iter):
