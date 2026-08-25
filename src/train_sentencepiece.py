@@ -23,7 +23,7 @@ def common_config(input_path, vocab_size):
         "input": str(input_path),
         "model_type": "bpe",
         "vocab_size": vocab_size,
-        "character_coverage": 1.0,
+        "character_coverage": 0.9995,
         "input_sentence_size": 0,
         "shuffle_input_sentence": False,
         "max_sentence_length": 8192,

@@ -42,10 +42,11 @@ def test_training_config_enables_byte_fallback_and_fairness(tmp_path):
     jamo = {**common, "model_prefix": "jamo", "normalization_rule_tsv": "jamo.tsv"}
 
     assert common["byte_fallback"] is True
+    assert common["character_coverage"] == 0.9995
     assert common["max_sentencepiece_length"] == 64
     assert_fair_configs(baseline, jamo)
 
-    broken = {**jamo, "character_coverage": 0.9995}
+    broken = {**jamo, "character_coverage": 0.999}
     with pytest.raises(RuntimeError):
         assert_fair_configs(baseline, broken)
 
