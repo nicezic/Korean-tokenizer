@@ -7,7 +7,7 @@ from pathlib import Path
 
 import sentencepiece as spm
 
-from hangul_metrics import JAMO_RANGES, SAMPLE, SYLLABLE_MAX, SYLLABLE_MIN
+from hangul_metrics import JAMO_RANGES, SYLLABLE_MAX, SYLLABLE_MIN
 from split_corpus import iter_documents
 from train_sentencepiece import file_sha256, normalization_probe
 
@@ -149,21 +149,6 @@ def rare_tail_metrics(processor, train_counts, test_counts, max_train_occurrence
     }
 
 
-def sample_metrics(processor):
-    nfc = unicodedata.normalize("NFC", SAMPLE)
-    nfd = unicodedata.normalize("NFD", SAMPLE)
-    nfc_tokens, nfc_unk = token_stats(processor, nfc)
-    nfd_tokens, nfd_unk = token_stats(processor, nfd)
-    return {
-        "characters": len(nfc),
-        "nfc_tokens": nfc_tokens,
-        "nfd_tokens": nfd_tokens,
-        "nfc_unk_tokens": nfc_unk,
-        "nfd_unk_tokens": nfd_unk,
-        "nfd_blowup": round(nfd_tokens / nfc_tokens, 4),
-    }
-
-
 def evaluate(name, model_path, test_path, train_counts, test_counts):
     processor = spm.SentencePieceProcessor(model_file=str(model_path))
     return {
@@ -171,7 +156,6 @@ def evaluate(name, model_path, test_path, train_counts, test_counts):
         "model": str(model_path),
         "normalization_probe": normalization_probe(model_path),
         "vocab": vocab_anatomy(processor),
-        "readme_sample": sample_metrics(processor),
         "held_out": corpus_metrics(processor, test_path),
         "rare_tail": rare_tail_metrics(processor, train_counts, test_counts),
     }

@@ -25,14 +25,13 @@ def main(tokenizer_json_path):
     with open(tokenizer_json_path, encoding="utf-8") as f:
         raw = json.load(f)
 
-    tok = Tokenizer.from_file(tokenizer_json_path)
+    Tokenizer.from_file(tokenizer_json_path)
     normalizer = raw.get("normalizer")
     label = "none" if normalizer is None else normalizer.get("type", str(normalizer))
     print_report(
         f"{raw['model']['type']} ({tokenizer_json_path})",
         summarize_vocab(vocab_pieces(raw)),
         label,
-        lambda t: len(tok.encode(t).ids),
     )
 
 

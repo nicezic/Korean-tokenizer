@@ -17,39 +17,26 @@ Hangul-awareness benchmarks for production LLM tokenizers.
 
 Measured 2026-08-25–26 across eight production tokenizers, including Korea-focused K-EXAONE 2.0 and Motif 3.
 
-> 🔑 **Six of eight expand canonically equivalent decomposed Hangul by 3.5–8.5×.**
-> Qwen3.8 and K-EXAONE 2.0 are immune at exactly **1.00×** — both ship an [`NFC`](https://www.unicode.org/reports/tr15/) normalizer.
-
 | Metric | o200k / GPT-5·GPT-4o (200,019) | Gemma 4 / Google (262,144) | Qwen3.8 / Alibaba (248,044) | DeepSeek-V4-Flash (128,000) | GLM-5.2\* (154,820) | Muse Glimmer / Meta (200,000) | K-EXAONE 2.0 / LG AI Research (153,600) | Motif 3 / Motif Technologies (220,160) |
 |---|---|---|---|---|---|---|---|---|
 | Atomic single-syllable tokens | 700 (**6.3%**) | 1,733 (**15.5%**) | 976 (**8.7%**) | 444 (**4.0%**) | 295 (**2.6%**) | 835 (**7.5%**) | 1,576 (**14.1%**) | 1,420 (**12.7%**) |
 | Multi-syllable merges | 1,219 | 2,270 | 5,099 | 416 | 109 | 4,030 | 36,207 | **48,271** |
 | Jamo-containing tokens (Korean modular alphabet) | 8 | 117 | 14 | **0** | **0** | 5 | 98 | 62 |
 | Unicode normalizer | none | `Replace` (`▁`) | **`NFC`** | `Sequence` | none | none | **`NFC`** | none |
-| Korean sample — [`NFC`](https://www.unicode.org/reports/tr15/) / [`NFD`](https://www.unicode.org/reports/tr15/) tokens | 303 / 2,586 | 274 / 962 | 255 / 255 | 330 / 2,103 | 395 / 2,429 | 267 / 1,921 | 192 / 192 | **185** / 1,162 |
-| **NFD blow-up factor** | **8.53×** | 3.51× | **1.00×** | 6.37× | 6.15× | 7.19× | **1.00×** | 6.28× |
 
 \* Subject of this study; GLM-5.3 shares its base model, so findings apply there too.
 Vocab sizes in parentheses.
 
 ### What the results mean
 
-1. **Canonical equivalence is routinely broken.** NFC and NFD forms of the same text are
-   interchangeable under Unicode, yet five tokenizers charge 3.5–8.5× more tokens for the
-   decomposed form — pure representation fragility, not linguistic difference.
-2. **Bigger vocabularies do not imply Hangul structure.** Gemma 4 owns the largest
+1. **Bigger vocabularies do not imply Hangul structure.** Gemma 4 owns the largest
    vocabulary (262K) and still covers only 15.5% of syllables with atomic tokens; GLM-5.2
-   manages 2.6%. The remaining ~84–97% ride on accidental merges or mid-character byte
-   fragments.
-3. **Compression is not canonical robustness.** Motif 3 is the most token-efficient tokenizer
-   here on the Korean sample at **185 tokens**, with **48,271** multi-syllable merges, yet its
-   canonically equivalent NFD form expands to 1,162 tokens (**6.28×**). Aggressive statistical
-   compression does not make Unicode representation differences disappear.
-4. **Canonical robustness is not structural awareness.** K-EXAONE 2.0 holds NFC/NFD at
-   **1.00×** through NFC normalization and reaches 192 tokens on the sample, yet has only 98
-   jamo-containing tokens. It solves representation stability without using the 67-jamo
-   inventory as primitives.
-5. **Blindness outlives model generations.** DeepSeek-V4 reuses the V3 tokenizer design;
+   manages 2.6%. Large vocabularies mostly spend capacity on learned merges rather than the
+   reusable 67-jamo inventory.
+2. **More Korean merges do not imply structural primitives.** Motif 3 has the largest measured
+   multi-syllable inventory at 48,271 pieces while containing only 62 jamo-bearing pieces.
+   Statistical compression and explicit Hangul structure are different design choices.
+3. **Blindness outlives model generations.** DeepSeek-V4 reuses the V3 tokenizer design;
    Muse Glimmer inherits Llama 4's unchanged. Each flagship generation keeps shipping
    inherited tokenization decisions for Hangul.
 
@@ -67,13 +54,12 @@ jamo that compose them.
 How many tokens ordinary Korean text requires, independent of whether the tokenizer is
 canonically robust or structurally aware.
 
-> **NFC normalization fixes representation instability. Better compression reduces token cost.
-> Neither one by itself makes a tokenizer Hangul-aware.**
+> **Normalization, structural primitives, and compression answer different questions.**
 
-Qwen3.8 and K-EXAONE 2.0 settle Problem A (blow-up 1.00×) while staying blind to Problem B.
-Motif 3 is the clearest Problem C counterexample: it reaches the best sample compression here
-at 185 tokens while still blowing NFD up by 6.28×. No measured tokenizer uses the 67-jamo
-inventory as primitives — that is what the RFC proposal targets.
+The production table above currently reports vocabulary anatomy and tokenizer configuration.
+Cross-tokenizer canonical-robustness and compression measurements use the reference test
+sets defined in [`docs/test-sets.md`](docs/test-sets.md). No measured production tokenizer uses
+the 67-jamo inventory as structural primitives — that is what the RFC proposal targets.
 
 ## How Hangul composes
 
@@ -98,9 +84,8 @@ tokenizers flatten it again.
    - ≥ 2 syllables → *multi-syllable merge*
    - contains any jamo character (U+1100–11FF / U+3130–318F) → *jamo-containing*
    - invalid UTF-8 → *byte fragment*
-2. **Canonical-equivalence stress test** — encode an identical 465-char Korean paragraph
-   (on the scientific design of Hangul) in NFC vs NFD form. Any token-count gap between
-   canonically equivalent strings measures pure representation fragility.
+2. **Reference-corpus evaluation** — canonical robustness and compression are evaluated on
+   fixed public or reproducible corpora documented in [`docs/test-sets.md`](docs/test-sets.md).
 
 ## Experimental validation — controlled SentencePiece A/B
 
@@ -117,7 +102,6 @@ one normalization path: **identity** vs `data/korean_hangul_jamo.tsv`.
 
 | Metric | Baseline BPE 32K | Jamo-aware BPE 32K |
 |---|---:|---:|
-| README sample — NFC / NFD tokens | 220 / 1,859 | **214 / 214** |
 | Held-out NFC tokens | 7,449,254 | **7,339,458** (**−1.47%**) |
 | Held-out NFD blow-up | **6.9809×** | **1.0013×** |
 | Held-out UTF-8 bytes / token | 4.6320 | **4.7013** |
@@ -132,8 +116,7 @@ one normalization path: **identity** vs `data/korean_hangul_jamo.tsv`.
 test split: 50 syllable types / 57 test occurrences. All 11,172 modern syllables occur at
 least once in the Wikipedia train split, so this is a **rare-tail fallback probe**, not an
 unseen-syllable or out-of-distribution claim. The Jamo model's full-Wikipedia 1.0013× residual
-comes from NFD changes outside precomposed Hangul; the Hangul-focused 465-character sample is
-exactly 1.00×.
+includes NFD changes outside precomposed Hangul.
 
 ### Controls and auxiliary run
 
@@ -288,7 +271,8 @@ Results describe these exact revisions; providers may update tokenizers at any t
 
 | File | Purpose |
 |---|---|
-| [`src/hangul_metrics.py`](src/hangul_metrics.py) | Shared classification + NFC/NFD blow-up logic |
+| [`docs/test-sets.md`](docs/test-sets.md) | Canonical benchmark-set definitions, roles, and external references |
+| [`src/hangul_metrics.py`](src/hangul_metrics.py) | Shared Hangul vocabulary-anatomy classification |
 | [`src/analyze_tokenizer_json.py`](src/analyze_tokenizer_json.py) | Analyze any HF `tokenizer.json` |
 | [`src/analyze_tiktoken_encoding.py`](src/analyze_tiktoken_encoding.py) | Analyze any `tiktoken` encoding |
 | [`src/extract_wikipedia.py`](src/extract_wikipedia.py) | Stream and clean Wikimedia XML bz2 shards while preserving article boundaries |
