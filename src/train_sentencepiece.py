@@ -27,6 +27,7 @@ def common_config(input_path, vocab_size):
         "input_sentence_size": 0,
         "shuffle_input_sentence": False,
         "max_sentence_length": 8192,
+        "max_sentencepiece_length": 64,
         "num_threads": 10,
         "unk_id": 0,
         "bos_id": 1,
