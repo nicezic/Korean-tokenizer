@@ -53,7 +53,7 @@ def token_stats(processor, text):
 def corpus_metrics(processor, path):
     doc_tokens = []
     doc_hangul = []
-    nfc_total = nfd_total = nfc_unk_total = nfd_unk_total = total_chars = 0
+    nfc_total = nfd_total = nfc_unk_total = nfd_unk_total = total_chars = total_bytes = 0
     for document in iter_documents(path):
         text = "\n".join(document)
         nfc = unicodedata.normalize("NFC", text)
@@ -68,16 +68,20 @@ def corpus_metrics(processor, path):
         nfc_unk_total += nfc_unk
         nfd_unk_total += nfd_unk
         total_chars += len(nfc)
+        total_bytes += len(nfc.encode("utf-8"))
     total_hangul = sum(doc_hangul)
     return {
         "documents": len(doc_tokens),
         "characters": total_chars,
+        "utf8_bytes": total_bytes,
         "hangul_syllables": total_hangul,
         "nfc_tokens": nfc_total,
         "nfd_tokens": nfd_total,
         "nfc_unk_tokens": nfc_unk_total,
         "nfd_unk_tokens": nfd_unk_total,
         "nfd_blowup": round(nfd_total / nfc_total, 4),
+        "bytes_per_token": round(total_bytes / nfc_total, 4) if nfc_total else None,
+        "characters_per_token": round(total_chars / nfc_total, 4) if nfc_total else None,
         "tokens_per_character": round(nfc_total / total_chars, 4) if total_chars else None,
         "tokens_per_hangul_syllable": round(nfc_total / total_hangul, 4) if total_hangul else None,
         "mean_tokens_per_document": round(statistics.fmean(doc_tokens), 2),
