@@ -168,8 +168,12 @@ def main():
         "training_seen_hangul_syllables": len(seen),
         "baseline": evaluate("baseline", args.models_dir / "baseline.model", args.train, args.test, seen),
         "jamo": evaluate("jamo", args.models_dir / "jamo.model", args.train, args.test, seen),
+        "controls": {},
         "auxiliary": {},
     }
+    nfkc_model = args.models_dir / "nfkc.model"
+    if nfkc_model.exists():
+        results["controls"]["nfkc"] = evaluate("nfkc", nfkc_model, args.train, args.test, seen)
     for model_path in sorted(args.models_dir.glob("jamo-*.model")):
         name = model_path.stem
         results["auxiliary"][name] = evaluate(name, model_path, args.train, args.test, seen)

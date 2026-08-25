@@ -2,7 +2,13 @@ import pytest
 
 from extract_wikipedia import clean_wikitext
 from split_corpus import is_test_document, iter_documents
-from train_sentencepiece import assert_fair_configs, assert_normalization_contract, auxiliary_name, common_config
+from train_sentencepiece import (
+    assert_fair_configs,
+    assert_nfkc_control_contract,
+    assert_normalization_contract,
+    auxiliary_name,
+    common_config,
+)
 
 
 def test_clean_wikitext_strips_markup_and_chunks():
@@ -49,6 +55,7 @@ def test_normalization_contract_and_auxiliary_name():
     jamo = {"nfc_normalized": "▁한", "nfd_normalized": "▁한"}
 
     assert_normalization_contract(baseline, jamo)
+    assert_nfkc_control_contract({"nfc_normalized": "▁한", "nfd_normalized": "▁한"})
     assert auxiliary_name(24_000) == "jamo-24k"
 
     with pytest.raises(RuntimeError):

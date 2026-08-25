@@ -57,7 +57,7 @@ def assert_fair_configs(baseline, jamo):
     baseline_common = {key: value for key, value in baseline.items() if key not in ignored}
     jamo_common = {key: value for key, value in jamo.items() if key not in ignored}
     if baseline_common != jamo_common:
-        raise RuntimeError("Baseline and Jamo effective configs differ outside normalization.")
+        raise RuntimeError("Effective configs differ outside normalization.")
 
 
 def normalization_probe(model_path):
@@ -81,6 +81,13 @@ def assert_normalization_contract(baseline_probe, jamo_probe):
         raise RuntimeError("Jamo normalizer did not decompose the NFC probe into conjoining Jamo.")
 
 
+def assert_nfkc_control_contract(control_probe):
+    if control_probe["nfc_normalized"] != control_probe["nfd_normalized"]:
+        raise RuntimeError("NFKC control does not converge NFC and NFD probe forms.")
+    if PROBE_NFC not in control_probe["nfc_normalized"]:
+        raise RuntimeError("NFKC control did not compose the NFD probe into the precomposed syllable.")
+
+
 def auxiliary_name(vocab_size):
     return f"jamo-{vocab_size // 1000}k" if vocab_size % 1000 == 0 else f"jamo-{vocab_size}"
 
@@ -92,6 +99,7 @@ def main():
     parser.add_argument("--jamo-tsv", type=Path, default=Path("data/korean_hangul_jamo.tsv"))
     parser.add_argument("--vocab-size", type=int, default=32_000)
     parser.add_argument("--aux-jamo-vocab-size", type=int)
+    parser.add_argument("--with-nfkc-control", action="store_true")
     args = parser.parse_args()
 
     args.output_dir.mkdir(parents=True, exist_ok=True)
@@ -113,6 +121,19 @@ def main():
     baseline_probe = normalization_probe(args.output_dir / "baseline.model")
     jamo_probe = normalization_probe(args.output_dir / "jamo.model")
     assert_normalization_contract(baseline_probe, jamo_probe)
+
+    canonical_control = None
+    if args.with_nfkc_control:
+        control_config = train_variant(
+            "nfkc",
+            args.output_dir,
+            common,
+            normalization_rule_name="nmt_nfkc",
+        )
+        assert_fair_configs(baseline, control_config)
+        control_probe = normalization_probe(args.output_dir / "nfkc.model")
+        assert_nfkc_control_contract(control_probe)
+        canonical_control = {"config": control_config, "normalization_probe": control_probe}
 
     auxiliary = None
     if args.aux_jamo_vocab_size is not None:
@@ -154,6 +175,7 @@ def main():
                 "jamo": jamo_probe,
             },
         },
+        "canonical_control": canonical_control,
         "auxiliary": auxiliary,
     }
     config_path = args.output_dir / "training_config.json"
