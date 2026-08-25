@@ -7,27 +7,27 @@ Hangul-awareness benchmarks for production LLM tokenizers.
 </p>
 
 > **Thesis.** Hangul composes all 11,172 syllables from 67 reusable Jamo (Korean modular alphabet) symbols.
-> Seven production tokenizers — OpenAI, Google, Alibaba, DeepSeek, Z.ai, Meta, LG AI Research —
-> flatten every syllable into opaque bytes instead.
+> Eight production tokenizers — OpenAI, Google, Alibaba, DeepSeek, Z.ai, Meta, LG AI Research, Motif Technologies —
+> do not use that 67-jamo inventory as structural primitives.
 > Proposal: [huggingface/tokenizers#1975](https://github.com/huggingface/tokenizers/issues/1975) ·
 > companion: [google/sentencepiece#1197](https://github.com/google/sentencepiece/issues/1197),
 > merged TSV in [#1200](https://github.com/google/sentencepiece/pull/1200)
 
 ## Results
 
-Measured 2026-08-25 across seven production tokenizers, including Korea-focused K-EXAONE 2.0.
+Measured 2026-08-25–26 across eight production tokenizers, including Korea-focused K-EXAONE 2.0 and Motif 3.
 
-> 🔑 **Five of seven expand canonically equivalent decomposed Hangul by 3.5–8.5×.**
+> 🔑 **Six of eight expand canonically equivalent decomposed Hangul by 3.5–8.5×.**
 > Qwen3.8 and K-EXAONE 2.0 are immune at exactly **1.00×** — both ship an [`NFC`](https://www.unicode.org/reports/tr15/) normalizer.
 
-| Metric | o200k / GPT-5·GPT-4o (200,019) | Gemma 4 / Google (262,144) | Qwen3.8 / Alibaba (248,044) | DeepSeek-V4-Flash (128,000) | GLM-5.2\* (154,820) | Muse Glimmer / Meta (200,000) | K-EXAONE 2.0 / LG AI Research (153,600) |
-|---|---|---|---|---|---|---|---|
-| Atomic single-syllable tokens | 700 (**6.3%**) | 1,733 (**15.5%**) | 976 (**8.7%**) | 444 (**4.0%**) | 295 (**2.6%**) | 835 (**7.5%**) | 1,576 (**14.1%**) |
-| Multi-syllable merges | 1,219 | 2,270 | 5,099 | 416 | 109 | 4,030 | **36,207** |
-| Jamo-containing tokens (Korean modular alphabet) | 8 | 117 | 14 | **0** | **0** | 5 | 98 |
-| Unicode normalizer | none | `Replace` (`▁`) | **`NFC`** | `Sequence` | none | none | **`NFC`** |
-| Korean sample — [`NFC`](https://www.unicode.org/reports/tr15/) / [`NFD`](https://www.unicode.org/reports/tr15/) tokens | 303 / 2,586 | 274 / 962 | 255 / 255 | 330 / 2,103 | 395 / 2,429 | 267 / 1,921 | **192 / 192** |
-| **NFD blow-up factor** | **8.53×** | 3.51× | **1.00×** | 6.37× | 6.15× | 7.19× | **1.00×** |
+| Metric | o200k / GPT-5·GPT-4o (200,019) | Gemma 4 / Google (262,144) | Qwen3.8 / Alibaba (248,044) | DeepSeek-V4-Flash (128,000) | GLM-5.2\* (154,820) | Muse Glimmer / Meta (200,000) | K-EXAONE 2.0 / LG AI Research (153,600) | Motif 3 / Motif Technologies (220,160) |
+|---|---|---|---|---|---|---|---|---|
+| Atomic single-syllable tokens | 700 (**6.3%**) | 1,733 (**15.5%**) | 976 (**8.7%**) | 444 (**4.0%**) | 295 (**2.6%**) | 835 (**7.5%**) | 1,576 (**14.1%**) | 1,420 (**12.7%**) |
+| Multi-syllable merges | 1,219 | 2,270 | 5,099 | 416 | 109 | 4,030 | 36,207 | **48,271** |
+| Jamo-containing tokens (Korean modular alphabet) | 8 | 117 | 14 | **0** | **0** | 5 | 98 | 62 |
+| Unicode normalizer | none | `Replace` (`▁`) | **`NFC`** | `Sequence` | none | none | **`NFC`** | none |
+| Korean sample — [`NFC`](https://www.unicode.org/reports/tr15/) / [`NFD`](https://www.unicode.org/reports/tr15/) tokens | 303 / 2,586 | 274 / 962 | 255 / 255 | 330 / 2,103 | 395 / 2,429 | 267 / 1,921 | 192 / 192 | **185** / 1,162 |
+| **NFD blow-up factor** | **8.53×** | 3.51× | **1.00×** | 6.37× | 6.15× | 7.19× | **1.00×** | 6.28× |
 
 \* Subject of this study; GLM-5.3 shares its base model, so findings apply there too.
 Vocab sizes in parentheses.
@@ -41,15 +41,19 @@ Vocab sizes in parentheses.
    vocabulary (262K) and still covers only 15.5% of syllables with atomic tokens; GLM-5.2
    manages 2.6%. The remaining ~84–97% ride on accidental merges or mid-character byte
    fragments.
-3. **Korean efficiency is not structural awareness.** K-EXAONE 2.0 is the most
-   token-efficient tokenizer here on the Korean sample (192 tokens) and carries **36,207**
-   multi-syllable merges, yet only 98 jamo-containing tokens in a 153.6K vocabulary. It
-   optimizes Korean aggressively without using the 67-jamo inventory as primitives.
-4. **Blindness outlives model generations.** DeepSeek-V4 reuses the V3 tokenizer design;
+3. **Compression is not canonical robustness.** Motif 3 is the most token-efficient tokenizer
+   here on the Korean sample at **185 tokens**, with **48,271** multi-syllable merges, yet its
+   canonically equivalent NFD form expands to 1,162 tokens (**6.28×**). Aggressive statistical
+   compression does not make Unicode representation differences disappear.
+4. **Canonical robustness is not structural awareness.** K-EXAONE 2.0 holds NFC/NFD at
+   **1.00×** through NFC normalization and reaches 192 tokens on the sample, yet has only 98
+   jamo-containing tokens. It solves representation stability without using the 67-jamo
+   inventory as primitives.
+5. **Blindness outlives model generations.** DeepSeek-V4 reuses the V3 tokenizer design;
    Muse Glimmer inherits Llama 4's unchanged. Each flagship generation keeps shipping
    inherited tokenization decisions for Hangul.
 
-## Two different problems
+## Three independent axes
 
 **Problem A — Canonical robustness.**
 `한` (NFC) and `한` (NFD) are canonically equivalent strings of the same word.
@@ -59,13 +63,17 @@ Token cost should not depend on which form arrives.
 11,172 opaque syllable blocks vs the actual primitives: **19 initial + 21 medial + 27 final**
 jamo that compose them.
 
-> **NFC normalization fixes representation instability. It does not by itself make a
-> tokenizer Hangul-aware.**
+**Problem C — Compression / fertility.**
+How many tokens ordinary Korean text requires, independent of whether the tokenizer is
+canonically robust or structurally aware.
 
-Qwen3.8 and K-EXAONE 2.0 settle Problem A (blow-up 1.00×) while staying blind to
-Problem B. K-EXAONE is the strongest counterexample: 192 tokens on the Korean sample through
-36,207 multi-syllable merges, but only 98 jamo-containing tokens. No measured tokenizer uses
-the 67-jamo inventory as primitives — that is what the RFC proposal targets.
+> **NFC normalization fixes representation instability. Better compression reduces token cost.
+> Neither one by itself makes a tokenizer Hangul-aware.**
+
+Qwen3.8 and K-EXAONE 2.0 settle Problem A (blow-up 1.00×) while staying blind to Problem B.
+Motif 3 is the clearest Problem C counterexample: it reaches the best sample compression here
+at 185 tokens while still blowing NFD up by 6.28×. No measured tokenizer uses the 67-jamo
+inventory as primitives — that is what the RFC proposal targets.
 
 ## How Hangul composes
 
@@ -133,11 +141,12 @@ Results describe these exact revisions; providers may update tokenizers at any t
 | DeepSeek-V4-Flash | [`deepseek-ai/DeepSeek-V4-Flash-0731`](https://huggingface.co/deepseek-ai/DeepSeek-V4-Flash-0731) @ `7872f01` | 2026-08-25 |
 | Muse Glimmer | [`meta-models/Muse-Glimmer-30B`](https://huggingface.co/meta-models/Muse-Glimmer-30B) @ `a4e59da` | 2026-08-25 |
 | K-EXAONE 2.0 | [`LGAI-EXAONE/K-EXAONE-2.0-750B-A37B`](https://huggingface.co/LGAI-EXAONE/K-EXAONE-2.0-750B-A37B) @ `fec0c8d` | 2026-08-25 |
+| Motif 3 | [`Motif-Technologies/Motif-3`](https://huggingface.co/Motif-Technologies/Motif-3) @ `883d5c4` | 2026-08-26 |
 
 ## What this benchmark does not claim
 
 - NFC/NFD token-count parity is **not** the same as jamo-aware modeling — see
-  *Two different problems* above.
+  *Three independent axes* above.
 - Jamo counts in a vocabulary are a proxy for structural awareness, not a measurement of
   what models do internally with those structures.
 - Token efficiency alone does not demonstrate downstream quality; a model layer can
@@ -178,6 +187,8 @@ Results describe these exact revisions; providers may update tokenizers at any t
   - Provides a recent multilingual methodology precedent for comparing normalization choices and tokenizer fertility.
 - [*Parity-Aware BPE* — ACL 2026](https://aclanthology.org/2026.acl-long.342/)
   - Treats cross-language compression disparity as an explicit BPE optimization objective, including Korean evaluation.
+- [*Motif 3 Technical Report* — 2026](https://arxiv.org/abs/2608.09119)
+  - Uses SuperBPE to optimize multilingual compression; its released tokenizer is a useful counterexample showing that strong Korean compression can coexist with poor NFC/NFD parity.
 
 ### Generalization and design caveats
 
