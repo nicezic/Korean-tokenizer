@@ -12,8 +12,8 @@ cross-tokenizer comparison
         |     -> compression / fertility / NFC-NFD robustness
         |
         +-- Korean Wikipedia held-out
-              -> large, reproducible local corpus
-              -> scale check / document statistics / rare-tail behavior
+              -> optional domain-scale / precursor validation
+              -> document statistics / rare-tail behavior
 ```
 
 The two sets answer different questions and should be reported separately rather than collapsed into one score.
@@ -58,9 +58,9 @@ It also has direct tokenizer-evaluation precedent: *Teaching Old Tokenizers New 
 
 Before publishing numbers, pin the exact FLORES+ dataset version or Hugging Face revision used. Do not silently mix FLORES-200 and a later FLORES+ revision in one result table.
 
-## 2. Korean Wikipedia held-out — large-scale validation
+## 2. Korean Wikipedia held-out — optional domain / precursor validation
 
-Use the existing deterministic held-out split generated from the first three Korean Wikipedia article shards.
+Use the existing deterministic held-out split only as a secondary domain-scale check and to connect new results with the completed SentencePiece precursor.
 
 ```text
 first three kowiki article shards
@@ -71,10 +71,10 @@ streaming extraction
         v
 SHA-256 content-hash document split
         |
-        +-- train: 136,757 documents
+        +-- precursor train: 136,757 documents
         |
-        +-- test:    7,261 documents
-                     34,519,812 bytes
+        +-- held-out:          7,261 documents
+                               34,519,812 bytes
 ```
 
 Current held-out metadata:
@@ -82,8 +82,10 @@ Current held-out metadata:
 - **Documents:** 7,261
 - **Derived file bytes:** 34,519,812
 - **Evaluation text characters:** 15,742,551
-- **Test SHA-256:** `5bb1ae5d792ecc0444b925162c119a2aa6a0550e617d6e964f007a4dcbde5de`
-- **Train SHA-256:** `17d26d1136085e907d2e5e9506c6527ec1db4989840812a507624a0b088801ba`
+- **Held-out SHA-256:** `5bb1ae5d792ecc0444b925162c119a2aa6a0550e617d6e9646f007a4dcbde5de`
+- **Paired precursor-train SHA-256:** `17d26d1136085e907d2e5e9506c6527ec1db4989840812a507624a0b088801ba`
+
+The paired train hash identifies the completed Wikipedia/SentencePiece precursor only. **CC-100 Korean is the training corpus for the new 2×2 experiment.**
 
 Source shards:
 
@@ -91,16 +93,18 @@ Source shards:
 2. `kowiki-latest-pages-articles-multistream2.xml-p82408p253794.bz2`
 3. `kowiki-latest-pages-articles-multistream3.xml-p253795p550363.bz2`
 
-Measure the same aggregate compression and NFC/NFD metrics as FLORES+, plus:
+When this set is used, measure the same aggregate compression and NFC/NFD metrics as FLORES+, plus metrics that benefit from a larger document corpus:
 
 - mean and median tokens per document;
 - vocabulary anatomy for experimental tokenizers;
-- rare-Hangul tail behavior;
+- rare-Hangul tail behavior when the frequency definition is tied to the relevant training corpus;
 - byte-fallback behavior.
 
 ### Interpretation boundary
 
-This split is **in-distribution and not deduplicated across documents**. Article-level splitting prevents the same extracted article from appearing in both train and test, but Wikipedia templates, citations, quotations, boilerplate, and duplicated phrases may cross document boundaries. Do not describe this set as an out-of-distribution generalization benchmark.
+This split is **in-distribution for the completed Wikipedia precursor and not deduplicated across documents**. Article-level splitting prevents the same extracted article from appearing in both precursor train and held-out files, but Wikipedia templates, citations, quotations, boilerplate, and duplicated phrases may cross document boundaries.
+
+When a tokenizer is trained on CC-100 rather than the paired Wikipedia train split, this set is simply a separate-domain validation corpus. Do not describe it as OOD without a stronger overlap analysis.
 
 ### References
 
@@ -112,14 +116,15 @@ This split is **in-distribution and not deduplicated across documents**. Article
 
 ## Reporting policy
 
-Use the sets in this order:
+Use the sets with these roles:
 
 ```text
 FLORES+ Korean devtest
-    -> headline cross-tokenizer comparison
+    -> headline public cross-tokenizer comparison
 
 Wikipedia held-out
-    -> large-scale confirmation and tail analysis
+    -> optional domain-scale / precursor comparison
+       and rare-tail analysis when its definition is appropriate
 ```
 
-Every result table must name the exact test set and report corpus-level metrics from that set.
+Every result table must name the exact test set and report corpus-level metrics from that set. Do not require Wikipedia validation for a claim that is explicitly scoped to FLORES+.
