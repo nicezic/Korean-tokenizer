@@ -249,9 +249,19 @@ uv run python src/extract_wikipedia.py \
 uv run python src/split_corpus.py
 uv run python src/train_sentencepiece.py --with-nfkc-control --aux-jamo-vocab-size 24000
 uv run python src/compare_sentencepiece.py
+
+# CC-100 Korean source/Jamo slices, after obtaining the official ko.txt.xz archive
+uv run python src/prepare_cc100.py
+
+# FLORES+ Korean devtest, after accepting the dataset terms and obtaining the pinned JSONL
+uv run python src/prepare_flores.py --revision <immutable-huggingface-commit>
+
+# SuperBPE 2x2 wrapper, after provisioning the pinned Python 3.12/Rust environment
+uv run python src/train_superbpe.py --scale 100m --validate-only
+uv run python src/train_superbpe.py --scale 100m
 ```
 
-CC-100/SuperBPE preparation and training code is **planned work** and is intentionally not presented here as already reproducible.
+CC-100 corpus preparation, FLORES+ validation/preparation, and the SuperBPE training wrapper are implemented. The gated FLORES+ file still has to be obtained at an immutable revision, the isolated SuperBPE runtime still has to be provisioned, and no 2×2 results are reported yet.
 
 Large corpora and trained model artifacts stay local and are ignored by Git.
 
@@ -315,6 +325,10 @@ Results describe these exact tokenizer revisions; providers may update tokenizer
 | [`src/analyze_tiktoken_encoding.py`](src/analyze_tiktoken_encoding.py) | Analyze a `tiktoken` encoding |
 | [`src/extract_wikipedia.py`](src/extract_wikipedia.py) | Stream/clean Wikimedia XML while preserving article boundaries |
 | [`src/split_corpus.py`](src/split_corpus.py) | Deterministic document-level precursor split |
+| [`src/prepare_cc100.py`](src/prepare_cc100.py) | Audit CC-100 Korean and prepare deterministic precomposed/Jamo training slices |
+| [`src/prepare_flores.py`](src/prepare_flores.py) | Validate a pinned FLORES+ Korean devtest JSONL and prepare ordered evaluation text |
+| [`src/benchmark_corpus.py`](src/benchmark_corpus.py) | Apply one corpus-metric implementation across production and experimental tokenizer families |
+| [`src/train_superbpe.py`](src/train_superbpe.py) | Validate pinned SuperBPE/runtime contracts and train the four cells for one corpus scale |
 | [`src/train_sentencepiece.py`](src/train_sentencepiece.py) | Train/audit precursor SentencePiece models |
 | [`src/compare_sentencepiece.py`](src/compare_sentencepiece.py) | Held-out precursor compression, normalization, vocabulary, and rare-tail metrics |
 | [`tests/test_pipeline.py`](tests/test_pipeline.py) | Pipeline invariants for extraction, splitting, normalization, fairness, and rare-tail metrics |
