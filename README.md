@@ -68,3 +68,30 @@ can be benchmarked identically.
 | `hangul_metrics.py` | Shared classification + NFC/NFD blow-up logic |
 | `analyze_tokenizer_json.py` | Analyze any HF `tokenizer.json` |
 | `analyze_tiktoken_encoding.py` | Analyze any `tiktoken` encoding |
+
+## Prior work
+
+- **Jamo-level BPE beats syllable/byte-level** — Lee, Cognetta, Moon & Okazaki,
+  [*Jamo-Level Subword Tokenization in Low-Resource Korean Machine Translation*](https://aclanthology.org/2025.loresmt-1.8/)
+  (LoResMT 2025). Jamo-based subword models consistently outperform syllable- and
+  byte-level models in low-resource and restricted-vocabulary settings, with
+  shorter tokenized sequences and fewer vocabulary parameters.
+- **Tokenization-strategy sweep for Korean** — Park, Lee, Jang & Jung,
+  [*An Empirical Study of Tokenization Strategies for Various Korean NLP Tasks*](https://aclanthology.org/2020.aacl-main.17/)
+  (AACL 2020, [kortok](https://github.com/kakaobrain/kortok)). Compares jamo (CV),
+  syllable, morpheme and BPE strategies; morphological segmentation followed by
+  BPE wins overall.
+- **Sub-character decomposition in PLMs** — Jeon, Yang, Kim & Lim,
+  [*Improving Korean NLP Tasks with Linguistically Informed Subword Tokenization and Sub-character Decomposition*](https://arxiv.org/abs/2311.03928)
+  (arXiv 2023). Morpheme-aware subwords plus sub-character decomposition improve
+  Korean PLM tasks, notably NIKL-CoLA.
+- **Encoder-side precedent in `tokenizers`** — the library's normalizer already
+  performs arithmetic Hangul syllable decomposition on the NFD path
+  ([c4ec9ef](https://github.com/huggingface/tokenizers/commit/c4ec9ef2fa72f0e693804c300af0b7f5f4c7c4ef));
+  the compositional machinery exists, it is just not exposed as a modeling
+  primitive.
+- **Historical parallel** — legacy Korean encodings faced the same choice this
+  repo measures: EUC-KR (완성형/Wansung) covered only the 2,350 most common
+  precomposed syllables, while Johab (조합형) covered all 11,172 via jamo
+  composition. Vocab-allocated atomic-syllable coverage is a re-run of the
+  Wansung trade-off — and history already showed compositional wins.
