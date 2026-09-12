@@ -2,12 +2,38 @@
 
 Hangul-awareness benchmarks for production LLM tokenizers.
 
-Korean (Hangul) is a **compositional script**: every syllable block (U+AC00–D7A3) is pure
-arithmetic over just **68 jamo** (19 initials + 21 vowels + 28 finals). Yet mainstream
-tokenizers treat all 11,172 syllable blocks as opaque byte sequences with zero structural
-awareness.
+## Background: syllables are composed, not atomic
 
-This repo measures how deep that blindness goes, across three production tokenizers.
+Korean (Hangul) is a **compositional script**: every syllable block (U+AC00–D7A3)
+is pure arithmetic over 68 conjoining **jamo** — 19 initials (choseong) ×
+21 vowels (jungseong) × 28 final slots (jongseong; 27 consonants + "none") =
+**11,172 possible syllables**. The entire script is one multiplication.
+
+```text
+'한' (han) — the same syllable, stored two ways:
+
+  NFC (precomposed)   [ 한 ]                1 codepoint:  U+D55C
+  NFD (decomposed)    [ ᄒ ][ ᅡ ][ ᆫ ]        3 codepoints: U+1112 U+1161 U+11AB
+                      choseong jungseong jongseong
+```
+
+Latin readers know this same split as `é` = U+00E9 (NFC) vs `e` + `´` =
+U+0065 U+0301 (NFD) — Hangul just applies it to every syllable.
+
+The key point: **NFC and NFD encode the same jamo composition.** NFC packs the
+composed result into one codepoint; NFD just spells out the same three jamo
+explicitly. Conversion between them is lossless — which is what makes a jamo
+normalization step safe to add.
+
+One caveat: the ㄱ, ㅏ a keyboard types are **compatibility jamo**
+(U+3130–318F) — standalone letters that never compose. NFD and this proposal
+mean the **conjoining** jamo (U+1100–11FF), the parts built for composition.
+
+Yet mainstream tokenizers treat those 11,172 syllable blocks as opaque byte
+sequences with zero structural awareness — a vocabulary must buy coverage one
+precomposed block at a time instead of composing from the 68 factors.
+This repo measures how deep that blindness goes, across three production
+tokenizers.
 Motivation and proposal: [huggingface/tokenizers#1975](https://github.com/huggingface/tokenizers/issues/1975)
 (companion: [google/sentencepiece#1197](https://github.com/google/sentencepiece/issues/1197),
 merged TSV in [google/sentencepiece#1200](https://github.com/google/sentencepiece/pull/1200)).
@@ -51,6 +77,27 @@ merged TSV in [google/sentencepiece#1200](https://github.com/google/sentencepiec
   structural foundation, instead of hoping statistics rediscover it per-syllable at enormous
   vocab cost. See the RFC for the proposal.
 
+## Expected impact
+
+An honest prediction:
+
+- **Coverage and robustness, not average efficiency.** Frequent syllables would
+  re-merge into single tokens under a jamo-trained BPE, so ordinary Korean text
+  tokenizes about the same as today. The wins are structural: 100% syllable
+  coverage by construction — even of the ~2,350 commonly used syllables, today's
+  atomic sets cover only ~7% (cl100k) to ~30% (o200k) — plus NFD inputs collapse
+  to a 1.0× blow-up, and rare or never-seen syllables get meaningful
+  compositional embeddings instead of meaningless byte fragments.
+- **Vocab slots freed.** The 68-jamo foundation plus corpus-driven merges —
+  vs. today's 789 (cl100k) and 1,581 (o200k) entries spent on mid-character
+  byte fragments with no linguistic meaning.
+- **Speech may be the better fit.** Pronunciation operates at jamo level: ASR
+  liaison crosses syllable boundaries (한국어 → [한구거]), and Korean TTS g2p
+  pipelines already decompose to jamo. The structural blindness measured here
+  matters more where the signal is sound.
+- **Caveat:** this requires training a new tokenizer — it cannot retrofit a
+  frozen vocabulary, so it targets next-generation models.
+
 ## Usage
 
 ```bash
@@ -68,3 +115,25 @@ can be benchmarked identically.
 | `hangul_metrics.py` | Shared classification + NFC/NFD blow-up logic |
 | `analyze_tokenizer_json.py` | Analyze any HF `tokenizer.json` |
 | `analyze_tiktoken_encoding.py` | Analyze any `tiktoken` encoding |
+
+## Prior work
+
+- **Jamo-level BPE beats syllable/byte-level** — Lee, Cognetta, Moon & Okazaki,
+  [*Jamo-Level Subword Tokenization in Low-Resource Korean Machine Translation*](https://aclanthology.org/2025.loresmt-1.8/)
+  (LoResMT 2025). Jamo-based subword models consistently outperform syllable- and
+  byte-level models in low-resource and restricted-vocabulary settings, with
+  shorter tokenized sequences and fewer vocabulary parameters.
+- **Tokenization-strategy sweep for Korean** — Park, Lee, Jang & Jung,
+  [*An Empirical Study of Tokenization Strategies for Various Korean NLP Tasks*](https://aclanthology.org/2020.aacl-main.17/)
+  (AACL 2020, [kortok](https://github.com/kakaobrain/kortok)). Compares jamo (CV),
+  syllable, morpheme and BPE strategies; morphological segmentation followed by
+  BPE wins overall.
+- **Sub-character decomposition in PLMs** — Jeon, Yang, Kim & Lim,
+  [*Improving Korean NLP Tasks with Linguistically Informed Subword Tokenization and Sub-character Decomposition*](https://arxiv.org/abs/2311.03928)
+  (arXiv 2023). Morpheme-aware subwords plus sub-character decomposition improve
+  Korean PLM tasks, notably NIKL-CoLA.
+- **Encoder-side precedent in `tokenizers`** — the library's normalizer already
+  performs arithmetic Hangul syllable decomposition on the NFD path
+  ([c4ec9ef](https://github.com/huggingface/tokenizers/commit/c4ec9ef2fa72f0e693804c300af0b7f5f4c7c4ef));
+  the compositional machinery exists, it is just not exposed as a modeling
+  primitive.
