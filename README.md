@@ -12,6 +12,34 @@ Motivation and proposal: [huggingface/tokenizers#1975](https://github.com/huggin
 (companion: [google/sentencepiece#1197](https://github.com/google/sentencepiece/issues/1197),
 merged TSV in [google/sentencepiece#1200](https://github.com/google/sentencepiece/pull/1200)).
 
+## Background: one syllable, two encodings
+
+Every Hangul syllable block (U+AC00–D7A3) is pure arithmetic over 68 conjoining
+**jamo** — 19 initials (choseong) × 21 vowels (jungseong) × 28 finals
+(jongseong). A syllable is to Hangul what an accented letter is to Latin:
+
+```text
+'한' (han) — the same syllable, stored two ways:
+
+  NFC · 완성형 (precomposed)   [ 한 ]                1 codepoint:  U+D55C
+  NFD · 조합형 (decomposed)    [ ᄒ ][ ᅡ ][ ᆫ ]        3 codepoints: U+1112 U+1161 U+11AB
+                               choseong jungseong jongseong
+```
+
+Latin readers know this same split as `é` = U+00E9 (NFC) vs `e` + `´` =
+U+0065 U+0301 (NFD) — Hangul just applies it to every syllable.
+
+Unicode has two jamo blocks. `unicodedata.normalize("NFD", s)` — and this
+repo's proposal — mean the **conjoining** jamo (U+1100–11FF), the parts that
+combine into syllables. The ㄱ, ㅏ that a keyboard types are **compatibility
+jamo** (U+3130–318F): standalone letters that never compose.
+
+Legacy Korean encodings hit this same fork decades ago: EUC-KR (완성형,
+Wansung) stored only the 2,350 most common precomposed syllables, while Johab
+(조합형) stored jamo bit-fields and could express all 11,172. Modern tokenizer
+vocabularies chose the Wansung trade-off — atomic tokens for a slice of the
+precomposed inventory, byte fragments for the rest.
+
 ## Methodology
 
 1. **Vocab anatomy** — decode every vocab entry back through the GPT-2 byte-level alphabet,
@@ -90,8 +118,3 @@ can be benchmarked identically.
   ([c4ec9ef](https://github.com/huggingface/tokenizers/commit/c4ec9ef2fa72f0e693804c300af0b7f5f4c7c4ef));
   the compositional machinery exists, it is just not exposed as a modeling
   primitive.
-- **Historical parallel** — legacy Korean encodings faced the same choice this
-  repo measures: EUC-KR (완성형/Wansung) covered only the 2,350 most common
-  precomposed syllables, while Johab (조합형) covered all 11,172 via jamo
-  composition. Vocab-allocated atomic-syllable coverage is a re-run of the
-  Wansung trade-off — and history already showed compositional wins.
