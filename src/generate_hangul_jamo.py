@@ -73,10 +73,6 @@ SHOWDOWN_HEIGHT = 100
 SHOWDOWN_CARD_Y = 34
 SHOWDOWN_CARD_HEIGHT = 54
 SHOWDOWN_CARD_CENTER_Y = SHOWDOWN_CARD_Y + SHOWDOWN_CARD_HEIGHT / 2
-SHOWDOWN_SUBTITLE_Y = SHOWDOWN_CARD_Y + 44
-SHOWDOWN_CENTER_GAP = 50
-SHOWDOWN_LEFT_WIDTH = SCALE_ASIDE_X - SECTION_INSET_X - SHOWDOWN_CENTER_GAP
-SHOWDOWN_VS_X = SCALE_ASIDE_X - SHOWDOWN_CENTER_GAP / 2
 
 FOOTER_Y = SHOWDOWN_Y + SHOWDOWN_HEIGHT + SECTION_GAP
 FOOTER_HEIGHT = 66
@@ -446,8 +442,7 @@ def draw_header(svg):
             fill=green.label_color,
         )
         svg.text(
-            f"Korean (Hangul) is a Modular Alphabet ({JAMO_SYMBOL_COUNT} Symbols). "
-            f"LLMs See {HANGUL_SYLLABLE_COUNT:,} Meaningless Opaque Blobs.",
+            "Hangul: alphabetic Jamo assemble by role into two-dimensional syllable blocks.",
             x=HEADER_TITLE_X,
             y=15,
             font_size=12.8,
@@ -455,7 +450,7 @@ def draw_header(svg):
             fill=COLOR_TEXT,
         )
         svg.text(
-            "Production tokenizers treat compositional Korean syllables as statistical byte soup.",
+            "The benchmark asks whether tokenization preserves this structure while still compressing well.",
             x=0,
             y=37,
             font_size=11.5,
@@ -468,8 +463,8 @@ def draw_top_panels(svg):
     with svg.group(transform=f"translate({MARGIN}, {TOP_PANELS_Y})"):
         draw_top_panel_frame(
             svg,
-            "Standard LLM Tokenizer",
-            "Opaque Byte View",
+            "Precomposed Surface Form",
+            "UTF-8 Encoding",
             "card-glow-red",
             ALERT_FILL,
             ALERT_DOT,
@@ -523,7 +518,7 @@ def draw_top_panels(svg):
             stroke_width=0.8,
         )
         svg.text(
-            "⚠️ 0% Modular Awareness · Raw Byte Soup",
+            "Structure is hidden at this representation layer",
             x=PANEL_CENTER_X,
             y=150,
             text_anchor="middle",
@@ -535,8 +530,8 @@ def draw_top_panels(svg):
     with svg.group(transform=f"translate({RIGHT_PANEL_X}, {TOP_PANELS_Y})"):
         draw_top_panel_frame(
             svg,
-            "Korean Modular Architecture",
-            "Modular Assembly",
+            "Hangul 2D Syllable Architecture",
+            "Positional Assembly",
             "card-glow-blue",
             blue.fill,
             blue.dot_color,
@@ -830,7 +825,7 @@ def draw_jamo_dock(svg):
     with svg.group(transform=f"translate({MARGIN}, {DOCK_Y})"):
         draw_section_shell(svg, DOCK_HEIGHT)
         svg.text(
-            f"{JAMO_SYMBOL_COUNT} JAMO (Korean Modular Alphabet) SYMBOLS · FINITE PALETTE",
+            f"{JAMO_SYMBOL_COUNT} POSITIONAL JAMO · REUSABLE ALPHABETIC COMPONENTS",
             x=18,
             y=20,
             font_size=11.5,
@@ -883,7 +878,7 @@ def draw_dense_syllables(svg):
         )
         svg.empty("rect", x=8, y=7, width=220, height=17, rx=3, fill=ALERT_FILL, fill_opacity=0.15)
         svg.text(
-            f"🔴 {HANGUL_SYLLABLE_COUNT:,} STANDALONE PICTURES",
+            f"{HANGUL_SYLLABLE_COUNT:,} PRECOMPOSED SYLLABLE BLOCKS",
             x=14,
             y=19,
             font_size=9,
@@ -910,7 +905,7 @@ def draw_dense_syllables(svg):
                 stroke_width=0.8,
             )
             svg.text(
-                f"··· [ {truncated_count:,} SYLLABLES TRUNCATED : {HANGUL_SYLLABLE_COUNT:,} OPAQUE STANDALONE BLOBS ] ···",
+                f"··· [ {truncated_count:,} SYLLABLES TRUNCATED : ONE REGULAR COMPOSITION SPACE ] ···",
                 x=SCALE_MAIN_INNER_WIDTH / 2,
                 y=15,
                 text_anchor="middle",
@@ -931,7 +926,7 @@ def draw_dense_syllables(svg):
             stroke_width=0.8,
         )
         svg.text(
-            "⚠️ 99.4% Syllables Missing in Standard Vocabs → 6.0× ~ 9.3× Token Inflation",
+            "Unicode precomposition is convenient; the Jamo structure remains algorithmically recoverable",
             x=SCALE_MAIN_CENTER_X,
             y=263,
             text_anchor="middle",
@@ -978,7 +973,7 @@ def draw_summary_and_hud(svg):
             fill_opacity=0.2,
         )
         svg.text(
-            f"⚡ {JAMO_SYMBOL_COUNT}-SYMBOL MODULAR BASIS",
+            f"{JAMO_SYMBOL_COUNT} POSITIONAL JAMO BASIS",
             x=SCALE_ASIDE_CENTER_X,
             y=18,
             text_anchor="middle",
@@ -1031,7 +1026,7 @@ def draw_summary_and_hud(svg):
             stroke=green.label_color,
         )
         svg.text(
-            "✨ 100% HANGUL STRUCTURE",
+            "REUSABLE STRUCTURAL BASIS",
             x=SCALE_ASIDE_CENTER_X,
             y=95,
             text_anchor="middle",
@@ -1081,7 +1076,7 @@ def draw_scale_paradox(svg):
         draw_section_shell(svg, SCALE_HEIGHT)
         draw_section_header(
             svg,
-            f"SCALE PARADOX : {HANGUL_SYLLABLE_COUNT:,} OPAQUE BLOBS vs {JAMO_SYMBOL_COUNT} MODULAR ALPHABET SYMBOLS",
+            f"COMPOSITION SPACE : {HANGUL_SYLLABLE_COUNT:,} PRECOMPOSED BLOCKS FROM {JAMO_SYMBOL_COUNT} POSITIONAL JAMO",
             "#ff7b72",
             "#f85149",
         )
@@ -1089,116 +1084,36 @@ def draw_scale_paradox(svg):
         draw_summary_and_hud(svg)
 
 
-def draw_showdown_card(
-    svg,
-    x,
-    width,
-    title,
-    subtitle,
-    *,
-    fill,
-    fill_opacity,
-    stroke,
-    stroke_width,
-    title_color,
-    title_size,
-    subtitle_color,
-    subtitle_size,
-    subtitle_weight,
-    rect_filter=None,
-    title_filter=None,
-):
-    center_x = x + width / 2
-    svg.empty(
-        "rect",
-        x=x,
-        y=SHOWDOWN_CARD_Y,
-        width=width,
-        height=SHOWDOWN_CARD_HEIGHT,
-        rx=6,
-        fill=fill,
-        fill_opacity=fill_opacity,
-        stroke=stroke,
-        stroke_width=stroke_width,
-        filter=rect_filter,
-    )
-    svg.text(
-        title,
-        x=center_x,
-        y=SHOWDOWN_CARD_CENTER_Y,
-        text_anchor="middle",
-        font_size=title_size,
-        font_weight=900,
-        fill=title_color,
-        filter=title_filter,
-    )
-    svg.text(
-        subtitle,
-        x=center_x,
-        y=SHOWDOWN_SUBTITLE_Y,
-        text_anchor="middle",
-        font_size=subtitle_size,
-        font_weight=subtitle_weight,
-        fill=subtitle_color,
-    )
-
-
 def draw_showdown(svg):
     with svg.group(transform=f"translate({MARGIN}, {SHOWDOWN_Y})"):
         draw_section_shell(svg, SHOWDOWN_HEIGHT)
-        draw_section_header(svg, "VOCABULARY PARADOX SHOWDOWN : TOKENS REQUIRED", "#58a6ff", "#388bfd", 10.5)
-        draw_showdown_card(
-            svg,
-            SECTION_INSET_X,
-            SHOWDOWN_LEFT_WIDTH,
-            f"🔴 {HANGUL_SYLLABLE_COUNT:,} MEANINGLESS TOKENS",
-            "Brute-Force Memorization · 99.4% Syllables Missing",
-            fill="#da3633",
-            fill_opacity=0.15,
-            stroke="#da3633",
-            stroke_width=1.2,
-            title_color="#ff7b72",
-            title_size=15,
-            subtitle_color=COLOR_MUTED,
-            subtitle_size=10,
-            subtitle_weight=700,
-            title_filter="url(#glow-red-strong)",
+        draw_section_header(svg, "HANGUL COMPOSITIONAL BASIS", "#58a6ff", "#388bfd", 10.5)
+
+        roles = (
+            ("INITIAL", "19", "ᄒ", JAMO_ROLES["initial"].stroke),
+            ("MEDIAL", "21", "ᅡ", JAMO_ROLES["vowel"].stroke),
+            ("FINAL", "27 + ∅", "ᆫ", JAMO_ROLES["final"].stroke),
         )
-        svg.empty(
-            "circle",
-            cx=SHOWDOWN_VS_X,
-            cy=SHOWDOWN_CARD_CENTER_Y,
-            r=16,
-            fill=COLOR_SURFACE,
-            stroke=COLOR_TEXT,
-            stroke_width=2,
-            filter="url(#glow-white)",
-        )
+        start_x = 30
+        step_x = 138
+        for index, (label, count, char, color) in enumerate(roles):
+            x = start_x + index * step_x
+            svg.text(label, x=x, y=51, font_size=8.5, font_weight=700, fill=COLOR_MUTED)
+            svg.text(count, x=x, y=72, font_size=12, font_weight=900, fill=color)
+            svg.text(char, x=x + 55, y=71, font_size=21, font_weight=900, fill=COLOR_TEXT)
+            if index < 2:
+                svg.text("+", x=x + 108, y=70, font_size=16, font_weight=900, fill=COLOR_MUTED)
+
+        svg.text("→", x=445, y=70, font_size=18, font_weight=900, fill=COLOR_MUTED)
+        svg.text("한", x=480, y=72, font_size=26, font_weight=900, fill=COLOR_WHITE)
         svg.text(
-            "VS",
-            x=SHOWDOWN_VS_X,
-            y=SHOWDOWN_CARD_CENTER_Y + 4,
-            text_anchor="middle",
-            font_size=10.5,
-            font_weight=900,
-            fill=COLOR_WHITE,
-        )
-        draw_showdown_card(
-            svg,
-            SCALE_ASIDE_X,
-            SCALE_ASIDE_WIDTH,
-            f"🟢 {JAMO_SYMBOL_COUNT} SYMBOLS",
-            "100% MODULAR ALPHABET",
-            fill="#238636",
-            fill_opacity=0.22,
-            stroke="#3fb950",
-            stroke_width=1.5,
-            title_color="#56d364",
-            title_size=16,
-            subtitle_color="#7ee787",
-            subtitle_size=9.5,
-            subtitle_weight=800,
-            rect_filter="url(#glow-green)",
+            f"{JAMO_SYMBOL_COUNT} positional Jamo  →  19 × 21 × 28  →  {HANGUL_SYLLABLE_COUNT:,} blocks",
+            x=710,
+            y=66,
+            text_anchor="end",
+            font_size=9.2,
+            font_weight=700,
+            fill="#79c0ff",
         )
 
 
@@ -1236,7 +1151,7 @@ def draw_footer(svg):
             fill="#79c0ff",
         )
         svg.text(
-            f"Korean is a modular alphabet. {HANGUL_SYLLABLE_COUNT:,} standalone tokens is like English without the alphabet.",
+            "Hangul combines alphabetic Jamo with systematic 2D syllable-block assembly.",
             x=FOOTER_TITLE_X,
             y=32,
             font_size=12,
@@ -1244,7 +1159,7 @@ def draw_footer(svg):
             fill=COLOR_TEXT,
         )
         svg.text(
-            "Solution: modular pre-tokenization → less token explosion + structural awareness.",
+            "Research question: can explicit structure coexist with strong compression?",
             x=FOOTER_INSET_X,
             y=55,
             font_size=10.5,

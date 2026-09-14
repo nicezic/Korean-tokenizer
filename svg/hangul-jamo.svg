@@ -37,14 +37,14 @@
   <g transform="translate(35, 20)">
     <rect x="0" y="0" width="86" height="20" rx="10" fill="#238636" fill-opacity="0.2" stroke="#2ea043"/>
     <text x="43" y="14" text-anchor="middle" font-size="10.5" font-weight="700" fill="#3fb950">BENCHMARK</text>
-    <text x="96" y="15" font-size="12.8" font-weight="700" fill="#f0f6fc">Korean (Hangul) is a Modular Alphabet (67 Symbols). LLMs See 11,172 Meaningless Opaque Blobs.</text>
-    <text x="0" y="37" font-size="11.5" fill="#8b949e">Production tokenizers treat compositional Korean syllables as statistical byte soup.</text>
+    <text x="96" y="15" font-size="12.8" font-weight="700" fill="#f0f6fc">Hangul: alphabetic Jamo assemble by role into two-dimensional syllable blocks.</text>
+    <text x="0" y="37" font-size="11.5" fill="#8b949e">The benchmark asks whether tokenization preserves this structure while still compressing well.</text>
   </g>
   <g transform="translate(35, 65)">
     <rect width="355" height="175" rx="10" fill="url(#card-glow-red)" stroke="#da3633" stroke-opacity="0.4"/>
     <circle cx="18" cy="18" r="4.5" fill="#f85149"/>
-    <text x="30" y="22" font-size="12" font-weight="700" fill="#ff7b72">Standard LLM Tokenizer</text>
-    <text x="340" y="22" text-anchor="end" font-size="10" fill="#8b949e">Opaque Byte View</text>
+    <text x="30" y="22" font-size="12" font-weight="700" fill="#ff7b72">Precomposed Surface Form</text>
+    <text x="340" y="22" text-anchor="end" font-size="10" fill="#8b949e">UTF-8 Encoding</text>
     <line x1="15" y1="32" x2="340" y2="32" stroke="#30363d" stroke-width="0.8"/>
     <g transform="translate(16, 40)">
       <rect width="323" height="82" rx="6" fill="#0d1117" stroke="#30363d"/>
@@ -56,13 +56,13 @@
       <text x="240" y="57" text-anchor="middle" font-size="11" font-weight="700" fill="#8b949e">[ 글 · 3 Bytes ]</text>
     </g>
     <rect x="16" y="130" width="323" height="30" rx="5" fill="#da3633" fill-opacity="0.15" stroke="#da3633" stroke-width="0.8"/>
-    <text x="177.5" y="150" text-anchor="middle" font-size="10.5" font-weight="700" fill="#ff7b72">⚠️ 0% Modular Awareness · Raw Byte Soup</text>
+    <text x="177.5" y="150" text-anchor="middle" font-size="10.5" font-weight="700" fill="#ff7b72">Structure is hidden at this representation layer</text>
   </g>
   <g transform="translate(410, 65)">
     <rect width="355" height="175" rx="10" fill="url(#card-glow-blue)" stroke="#1f6feb" stroke-opacity="0.5"/>
     <circle cx="18" cy="18" r="4.5" fill="#388bfd"/>
-    <text x="30" y="22" font-size="12" font-weight="700" fill="#58a6ff">Korean Modular Architecture</text>
-    <text x="340" y="22" text-anchor="end" font-size="10" fill="#8b949e">Modular Assembly</text>
+    <text x="30" y="22" font-size="12" font-weight="700" fill="#58a6ff">Hangul 2D Syllable Architecture</text>
+    <text x="340" y="22" text-anchor="end" font-size="10" fill="#8b949e">Positional Assembly</text>
     <line x1="15" y1="32" x2="340" y2="32" stroke="#30363d" stroke-width="0.8"/>
     <g transform="translate(16, 38)">
       <rect width="154" height="96" rx="6" fill="#0d1117" stroke="#30363d" stroke-width="1.2" stroke-dasharray="3 3"/>
@@ -135,7 +135,7 @@
   </g>
   <g transform="translate(35, 252)">
     <rect width="730" height="142" rx="10" fill="#0d1117" stroke="#30363d" stroke-width="1.5"/>
-    <text x="18" y="20" font-size="11.5" font-weight="700" fill="#8b949e">67 JAMO (Korean Modular Alphabet) SYMBOLS · FINITE PALETTE</text>
+    <text x="18" y="20" font-size="11.5" font-weight="700" fill="#8b949e">67 POSITIONAL JAMO · REUSABLE ALPHABETIC COMPONENTS</text>
     <line x1="18" y1="28" x2="712" y2="28" stroke="#21262d"/>
     <g transform="translate(18, 42)">
       <rect x="0" y="-1" width="86" height="22" rx="4" fill="#1f6feb" fill-opacity="0.15" stroke="#1f6feb" stroke-width="0.8"/>
@@ -471,12 +471,12 @@
   <g transform="translate(35, 408)">
     <rect width="730" height="336" rx="10" fill="#0d1117" stroke="#30363d" stroke-width="1.5"/>
     <circle cx="18" cy="18" r="4" fill="#f85149"/>
-    <text x="28" y="22" font-size="11" font-weight="700" fill="#ff7b72">SCALE PARADOX : 11,172 OPAQUE BLOBS vs 67 MODULAR ALPHABET SYMBOLS</text>
+    <text x="28" y="22" font-size="11" font-weight="700" fill="#ff7b72">COMPOSITION SPACE : 11,172 PRECOMPOSED BLOCKS FROM 67 POSITIONAL JAMO</text>
     <line x1="18" y1="28" x2="712" y2="28" stroke="#21262d"/>
     <g transform="translate(18, 38)">
       <rect width="500" height="282" rx="6" fill="#161b22" fill-opacity="0.6" stroke="#da3633" stroke-width="0.8" stroke-opacity="0.4"/>
       <rect x="8" y="7" width="220" height="17" rx="3" fill="#da3633" fill-opacity="0.15"/>
-      <text x="14" y="19" font-size="9" font-weight="700" fill="#ff7b72">🔴 11,172 STANDALONE PICTURES</text>
+      <text x="14" y="19" font-size="9" font-weight="700" fill="#ff7b72">11,172 PRECOMPOSED SYLLABLE BLOCKS</text>
       <text x="492" y="19" text-anchor="end" font-size="8.5" fill="#8b949e">Unicode U+AC00 ~ U+D7A3</text>
       <g font-family="monospace, 'Malgun Gothic', 'Noto Sans KR'" font-size="8.5" fill="#8b949e" opacity="0.65">
         <text x="10" y="37" textLength="480" lengthAdjust="spacing">가각갂갃간갅갆갇갈갉갊갋갌갍갎갏감갑값갓갔강갖갗갘같갚갛개객갞갟갠갡갢갣갤갥갦갧갨갩갪갫갬갭갮갯갰갱갲갳갴갵갶갷</text>
@@ -488,7 +488,7 @@
       </g>
       <g transform="translate(8, 118)">
         <rect width="484" height="22" rx="4" fill="#0d1117" stroke="#30363d" stroke-width="0.8"/>
-        <text x="242" y="15" text-anchor="middle" font-size="9" font-weight="600" fill="#8b949e">··· [ 10,500 SYLLABLES TRUNCATED : 11,172 OPAQUE STANDALONE BLOBS ] ···</text>
+        <text x="242" y="15" text-anchor="middle" font-size="9" font-weight="600" fill="#8b949e">··· [ 10,500 SYLLABLES TRUNCATED : ONE REGULAR COMPOSITION SPACE ] ···</text>
       </g>
       <g font-family="monospace, 'Malgun Gothic', 'Noto Sans KR'" font-size="8.5" fill="#8b949e" opacity="0.65">
         <text x="10" y="154" textLength="480" lengthAdjust="spacing">화확홖홗환홙홚홛활홝홞홟홠홡홢홣홤홥홦홧홨황홪홫홬홭홮홯홰홱홲홳홴홵홶홷홸홹홺홻홼홽홾홿횀횁횂횃횄횅횆횇횈횉횊횋</text>
@@ -499,12 +499,12 @@
         <text x="10" y="224" textLength="480" lengthAdjust="spacing">희흭흮흯흰흱흲흳흴흵흶흷흸흹흺흻흼흽흾흿힀힁힂힃힄힅힆힇히힉힊힋힌힍힎힏힐힑힒힓힔힕힖힗힘힙힚힛힜힝힞힟힠힡힢힣</text>
       </g>
       <rect x="8" y="246" width="484" height="26" rx="4" fill="#0d1117" stroke="#da3633" stroke-width="0.8"/>
-      <text x="250" y="263" text-anchor="middle" font-size="9" font-weight="700" fill="#f85149">⚠️ 99.4% Syllables Missing in Standard Vocabs → 6.0× ~ 9.3× Token Inflation</text>
+      <text x="250" y="263" text-anchor="middle" font-size="9" font-weight="700" fill="#f85149">Unicode precomposition is convenient; the Jamo structure remains algorithmically recoverable</text>
     </g>
     <g transform="translate(526, 38)">
       <rect width="186" height="110" rx="6" fill="url(#card-glow-blue)" stroke="#1f6feb" stroke-width="1.2"/>
       <rect x="7" y="6" width="172" height="18" rx="3" fill="#1f6feb" fill-opacity="0.2"/>
-      <text x="93" y="18" text-anchor="middle" font-size="9" font-weight="800" fill="#58a6ff">⚡ 67-SYMBOL MODULAR BASIS</text>
+      <text x="93" y="18" text-anchor="middle" font-size="9" font-weight="800" fill="#58a6ff">67 POSITIONAL JAMO BASIS</text>
       <rect x="7" y="27" width="172" height="14" rx="3" fill="#1f6feb" fill-opacity="0.15" stroke="#1f6feb" stroke-width="0.8"/>
       <text x="13" y="37.5" font-size="8.5" font-weight="700" fill="#79c0ff">INITIAL: 19 SYMBOLS</text>
       <text x="173" y="37.5" text-anchor="end" font-size="8.5" font-weight="700" fill="#f0f6fc">28.4%</text>
@@ -515,7 +515,7 @@
       <text x="13" y="71.5" font-size="8.5" font-weight="700" fill="#56d364">FINAL  : 27 SYMBOLS</text>
       <text x="173" y="71.5" text-anchor="end" font-size="8.5" font-weight="700" fill="#f0f6fc">40.3%</text>
       <rect x="7" y="81" width="172" height="22" rx="4" fill="#238636" fill-opacity="0.3" stroke="#3fb950"/>
-      <text x="93" y="95" text-anchor="middle" font-size="9.5" font-weight="900" fill="#56d364">✨ 100% HANGUL STRUCTURE</text>
+      <text x="93" y="95" text-anchor="middle" font-size="9.5" font-weight="900" fill="#56d364">REUSABLE STRUCTURAL BASIS</text>
       <g transform="translate(0, 116)">
         <rect width="186" height="166" rx="6" fill="#10151d" stroke="#30363d" stroke-width="1.2"/>
         <rect width="186" height="20" rx="6" fill="#161b22"/>
@@ -567,23 +567,29 @@
   <g transform="translate(35, 756)">
     <rect width="730" height="100" rx="10" fill="#0d1117" stroke="#30363d" stroke-width="1.5"/>
     <circle cx="18" cy="18" r="4" fill="#388bfd"/>
-    <text x="28" y="22" font-size="10.5" font-weight="700" fill="#58a6ff">VOCABULARY PARADOX SHOWDOWN : TOKENS REQUIRED</text>
+    <text x="28" y="22" font-size="10.5" font-weight="700" fill="#58a6ff">HANGUL COMPOSITIONAL BASIS</text>
     <line x1="18" y1="28" x2="712" y2="28" stroke="#21262d"/>
-    <rect x="18" y="34" width="458" height="54" rx="6" fill="#da3633" fill-opacity="0.15" stroke="#da3633" stroke-width="1.2"/>
-    <text x="247" y="61" text-anchor="middle" font-size="15" font-weight="900" fill="#ff7b72" filter="url(#glow-red-strong)">🔴 11,172 MEANINGLESS TOKENS</text>
-    <text x="247" y="78" text-anchor="middle" font-size="10" font-weight="700" fill="#8b949e">Brute-Force Memorization · 99.4% Syllables Missing</text>
-    <circle cx="501" cy="61" r="16" fill="#161b22" stroke="#f0f6fc" stroke-width="2" filter="url(#glow-white)"/>
-    <text x="501" y="65" text-anchor="middle" font-size="10.5" font-weight="900" fill="#ffffff">VS</text>
-    <rect x="526" y="34" width="186" height="54" rx="6" fill="#238636" fill-opacity="0.22" stroke="#3fb950" stroke-width="1.5" filter="url(#glow-green)"/>
-    <text x="619" y="61" text-anchor="middle" font-size="16" font-weight="900" fill="#56d364">🟢 67 SYMBOLS</text>
-    <text x="619" y="78" text-anchor="middle" font-size="9.5" font-weight="800" fill="#7ee787">100% MODULAR ALPHABET</text>
+    <text x="30" y="51" font-size="8.5" font-weight="700" fill="#8b949e">INITIAL</text>
+    <text x="30" y="72" font-size="12" font-weight="900" fill="#79c0ff">19</text>
+    <text x="85" y="71" font-size="21" font-weight="900" fill="#f0f6fc">ᄒ</text>
+    <text x="138" y="70" font-size="16" font-weight="900" fill="#8b949e">+</text>
+    <text x="168" y="51" font-size="8.5" font-weight="700" fill="#8b949e">MEDIAL</text>
+    <text x="168" y="72" font-size="12" font-weight="900" fill="#f2cc60">21</text>
+    <text x="223" y="71" font-size="21" font-weight="900" fill="#f0f6fc">ᅡ</text>
+    <text x="276" y="70" font-size="16" font-weight="900" fill="#8b949e">+</text>
+    <text x="306" y="51" font-size="8.5" font-weight="700" fill="#8b949e">FINAL</text>
+    <text x="306" y="72" font-size="12" font-weight="900" fill="#56d364">27 + ∅</text>
+    <text x="361" y="71" font-size="21" font-weight="900" fill="#f0f6fc">ᆫ</text>
+    <text x="445" y="70" font-size="18" font-weight="900" fill="#8b949e">→</text>
+    <text x="480" y="72" font-size="26" font-weight="900" fill="#ffffff">한</text>
+    <text x="710" y="66" text-anchor="end" font-size="9.2" font-weight="700" fill="#79c0ff">67 positional Jamo  →  19 × 21 × 28  →  11,172 blocks</text>
   </g>
   <g transform="translate(35, 868)">
     <rect width="730" height="66" rx="10" fill="#161b22" stroke="#1f6feb" stroke-width="1.2" filter="url(#glow-blue)"/>
     <rect x="16" y="19" width="84" height="18" rx="9" fill="#1f6feb" fill-opacity="0.2" stroke="#388bfd" stroke-width="0.8"/>
     <text x="58" y="32" text-anchor="middle" font-size="9.5" font-weight="800" fill="#79c0ff">💡 KEY POINT</text>
-    <text x="112" y="32" font-size="12" font-weight="700" fill="#f0f6fc">Korean is a modular alphabet. 11,172 standalone tokens is like English without the alphabet.</text>
-    <text x="16" y="55" font-size="10.5" fill="#c9d1d9">Solution: modular pre-tokenization → less token explosion + structural awareness.</text>
+    <text x="112" y="32" font-size="12" font-weight="700" fill="#f0f6fc">Hangul combines alphabetic Jamo with systematic 2D syllable-block assembly.</text>
+    <text x="16" y="55" font-size="10.5" fill="#c9d1d9">Research question: can explicit structure coexist with strong compression?</text>
     <text x="714" y="55" text-anchor="end" font-size="8.5" font-weight="700" fill="#58a6ff">github.com/nicezic/KOREAN-tokenizer</text>
   </g>
 </svg>

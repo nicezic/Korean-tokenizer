@@ -1,21 +1,31 @@
 # KOREAN-tokenizer
 
-Measuring whether modern tokenizers understand **Hangul structure** or merely compress its surface forms.
+Measuring whether modern tokenizers preserve **Hangul's compositional structure** or merely compress its surface forms.
 
 <p align="center">
-  <img src="svg/hangul-jamo.svg" alt="Animated: Jamo assemble into Hangul syllable blocks" width="760">
+  <img src="svg/hangul-jamo.svg" alt="Animated: positional Jamo assemble into two-dimensional Hangul syllable blocks" width="760">
 </p>
 
-Hangul does not require 11,172 unrelated symbols. Modern syllable blocks are composed from **67 positional Jamo characters** — 19 initials, 21 medials, and 27 finals — plus the null-final state.
+## Hangul is not a flat inventory of 11,172 symbols
+
+Hangul is an alphabet whose reusable letters are arranged by positional role into **two-dimensional syllable blocks**. Other writing systems also combine symbols; the relevant property here is Hangul's systematic pairing of alphabetic Jamo with syllable-block assembly.
 
 ```text
-19 initials × 21 medials × 28 final states
-                     │
-                     ▼
-           11,172 modern syllables
-
-67 reusable Jamo characters + one null-final state
+67 reusable positional Jamo
+├─ choseong  · initial  19
+├─ jungseong · medial   21
+└─ jongseong · final    27 + ∅
+              │
+              ▼
+       2D syllable block
+       ᄒ + ᅡ + ᆫ → 한
+              │
+              ▼
+19 × 21 × 28 final states
+= 11,172 modern syllable blocks
 ```
+
+The 11,172 modern precomposed Unicode syllables therefore form a regular combinatorial space, not 11,172 unrelated writing primitives. That distinction motivates the tokenizer question: **can reusable Hangul structure and strong compression coexist?**
 
 This repository studies three properties that are easy to conflate:
 
