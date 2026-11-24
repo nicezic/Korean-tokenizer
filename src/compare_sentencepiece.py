@@ -58,9 +58,10 @@ def vocab_anatomy(processor):
     }
 
 
-def token_stats(processor, text):
-    ids = processor.encode(text, out_type=int)
-    return len(ids), ids.count(processor.unk_id())
+def token_stats(processor, lines):
+    encoded = processor.encode(lines, out_type=int)
+    unk_id = processor.unk_id()
+    return sum(map(len, encoded)), sum(ids.count(unk_id) for ids in encoded)
 
 
 def corpus_metrics(processor, path):
@@ -68,20 +69,20 @@ def corpus_metrics(processor, path):
     doc_hangul = []
     nfc_total = nfd_total = nfc_unk_total = nfd_unk_total = total_chars = total_bytes = 0
     for document in iter_documents(path):
-        text = "\n".join(document)
-        nfc = unicodedata.normalize("NFC", text)
-        nfd = unicodedata.normalize("NFD", text)
+        # Encode line by line, as in training: a joined "\n" costs a token only in models that keep it.
+        nfc = [unicodedata.normalize("NFC", line) for line in document]
+        nfd = [unicodedata.normalize("NFD", line) for line in document]
         nfc_tokens, nfc_unk = token_stats(processor, nfc)
         nfd_tokens, nfd_unk = token_stats(processor, nfd)
-        hangul = sum(map(is_syllable, nfc))
+        hangul = sum(is_syllable(char) for line in nfc for char in line)
         doc_tokens.append(nfc_tokens)
         doc_hangul.append(hangul)
         nfc_total += nfc_tokens
         nfd_total += nfd_tokens
         nfc_unk_total += nfc_unk
         nfd_unk_total += nfd_unk
-        total_chars += len(nfc)
-        total_bytes += len(nfc.encode("utf-8"))
+        total_chars += sum(map(len, nfc))
+        total_bytes += sum(len(line.encode("utf-8")) for line in nfc)
     total_hangul = sum(doc_hangul)
     return {
         "documents": len(doc_tokens),

@@ -2,7 +2,7 @@ from collections import Counter
 
 import pytest
 
-from compare_sentencepiece import rare_tail_metrics
+from compare_sentencepiece import corpus_metrics, rare_tail_metrics
 from extract_wikipedia import clean_wikitext
 from split_corpus import is_test_document, iter_documents
 from train_sentencepiece import (
@@ -64,6 +64,28 @@ def test_normalization_contract_and_auxiliary_name():
 
     with pytest.raises(RuntimeError):
         assert_normalization_contract(baseline, {**jamo, "nfd_normalized": "▁한"})
+
+
+def test_corpus_metrics_encodes_lines_without_line_breaks(tmp_path):
+    class LineProcessor:
+        def encode(self, lines, out_type=int):
+            assert out_type is int
+            assert isinstance(lines, list) and not any("\n" in line for line in lines)
+            return [[0 if char == "?" else 1 for char in line] for line in lines]
+
+        def unk_id(self):
+            return 0
+
+    corpus = tmp_path / "corpus.txt"
+    corpus.write_text("한글\n나?\n\n가\n\n", encoding="utf-8")
+    metrics = corpus_metrics(LineProcessor(), corpus)
+
+    assert metrics["documents"] == 2
+    assert metrics["characters"] == metrics["nfc_tokens"] == 5
+    assert metrics["utf8_bytes"] == 13
+    assert metrics["nfd_tokens"] == 11
+    assert metrics["nfc_unk_tokens"] == metrics["nfd_unk_tokens"] == 1
+    assert metrics["mean_tokens_per_document"] == 2.5
 
 
 def test_rare_tail_metrics_counts_fragmentation_and_unseen():
