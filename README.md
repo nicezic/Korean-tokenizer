@@ -24,6 +24,10 @@
 
 **Discussion:** [huggingface/tokenizers#1975](https://github.com/huggingface/tokenizers/issues/1975) · [openai/tiktoken#511](https://github.com/openai/tiktoken/issues/511) · [google/sentencepiece#1197](https://github.com/google/sentencepiece/issues/1197) (Jamo mapping merged in [#1200](https://github.com/google/sentencepiece/pull/1200))
 
+<p align="center">
+  <img src="svg/hangul-jamo.svg" alt="Animated: positional Jamo assemble into two-dimensional Hangul syllable blocks" width="760">
+</p>
+
 ## Token count
 
 | Test | Jamo vs. raw | Tokenizer, vocabulary |
@@ -68,15 +72,6 @@ Same Korean Wikipedia text, same SentencePiece 0.2.2 BPE, same 32K vocabulary. O
 
 ᄒ + ᅡ + ᆫ = 한
 ```
-
-<details>
-<summary><b>Animated diagram</b></summary>
-
-<p align="center">
-  <img src="svg/hangul-jamo.svg" alt="Animated: positional Jamo assemble into two-dimensional Hangul syllable blocks" width="760">
-</p>
-
-</details>
 
 ## Hypothesis and evidence
 
