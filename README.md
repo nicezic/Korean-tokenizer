@@ -1,76 +1,131 @@
 # KOREAN-tokenizer
 
-Measuring whether modern tokenizers preserve **Hangul's compositional structure** or merely compress its surface forms.
+**Does splitting Hangul into Jamo (한 → ㅎ + ㅏ + ㄴ) help a tokenizer?**
+
+> [!IMPORTANT]
+> **Not for token count: it is close to a tie.**
+> Jamo used **1.5% fewer** tokens in our test, and **2% fewer to 5% more** in two independent tests.
+
+| | Question | Answer |
+|:-:|:--|:--|
+| ➖ | Fewer tokens? | **About the same.** |
+| ✅ | Same cost for NFC and NFD text? | **Yes, but not unique to Jamo.** An ordinary Unicode normalizer does it too. |
+| ✅ | No raw bytes for rare syllables? | **Yes, but rarely needed:** 57 of 9.1 million syllables in our test. |
+| ❓ | A better language model? | **Not measured here.** |
+
+<sub>NFC stores 한 as one character. NFD stores it as three. They look identical on screen.</sub>
+
+> [!NOTE]
+> **Corrections (2026-11-25)**
+> - The proposal's claims of "half" the tokens, "close to parity" with English, and "cost-free" were never measured and are **retracted**.
+> - This README also said the `nmt_nfkc` control compresses better than Jamo. Line breaks had been counted unequally; [fixed below](#our-test).
+>
+> A paused personal side project by a non-expert, built with AI assistance. A reference, not validated research.
+
+**Discussion:** [huggingface/tokenizers#1975](https://github.com/huggingface/tokenizers/issues/1975) · [openai/tiktoken#511](https://github.com/openai/tiktoken/issues/511) · [google/sentencepiece#1197](https://github.com/google/sentencepiece/issues/1197) (Jamo mapping merged in [#1200](https://github.com/google/sentencepiece/pull/1200))
+
+## Token count
+
+| Test | Jamo vs. raw | Tokenizer, vocabulary |
+|:--|--:|:--|
+| This repository | 🔽 −1.5% | SentencePiece BPE, 32K |
+| [Biruk-gebru](https://github.com/huggingface/tokenizers/issues/1975#issuecomment-7097208735) ([data](https://github.com/Biruk-gebru/amharicTokenizer/blob/c96e609e481322e87b91e9db5c030dbb947832ff/measurement/data/robustness_results_ko.json)) | 🔽 −2.0% | Unigram, 32K |
+| Biruk-gebru | 🔺 +1.2% | character BPE, 32K |
+| Biruk-gebru | 🔺 +1.7% | byte-level BPE, 32K |
+| Biruk-gebru | 🔺 +5.3% | byte-level BPE, 4K |
+| [MonikaDvorackova](https://github.com/openai/tiktoken/issues/511#issuecomment-6743473646) | 🔺 +1.7% | byte-level BPE, 2,323 |
+
+<sub>🔽 fewer tokens · 🔺 more tokens. All Korean. Corpora and trainers differ, so compare directions, not exact values. Biruk-gebru trained on about 1.2M characters and used compatibility Jamo (ㄱ); this repository uses conjoining Jamo (ᄀ).</sub>
+
+**Why a tie?** BPE puts the pieces back together:
+
+```text
+한국  →  ㅎ ㅏ ㄴ ㄱ ㅜ ㄱ  →  [한국]
+         split               merged again
+```
+
+With Jamo, pieces covering two or more whole syllables went **up**, from 57% to 67% of our 32K vocabulary.
+
+## Our test
+
+Same Korean Wikipedia text, same SentencePiece 0.2.2 BPE, same 32K vocabulary. Only the text normalization differs.
+
+| | Baseline | `nmt_nfkc` control | Jamo |
+|:--|--:|--:|--:|
+| Held-out tokens | 7,124,970 | 7,107,482 | **7,015,058** |
+| vs. baseline | – | −0.25% | **−1.54%** |
+| NFD ÷ NFC tokens | 7.29× | **1.00×** | **1.00×** |
+| Byte tokens per rare syllable | 3.00 | 3.00 | **0.00** |
+
+- **Counted line by line.** The earlier numbers (7,449,254 / 7,107,482 / 7,339,458) joined lines with a line break, which cost baseline and Jamo one token each and `nmt_nfkc` none.
+- **Rare syllable** means at most five occurrences in training: 50 types, 57 held-out occurrences.
+- **Limits.** One run, Wikipedia only, training and test from the same source.
+
+## How Hangul composes
+
+```text
+19 initials × 21 vowels × 28 finals (27 + none) = 11,172 syllables
+
+ᄒ + ᅡ + ᆫ = 한
+```
+
+<details>
+<summary><b>Animated diagram</b></summary>
 
 <p align="center">
   <img src="svg/hangul-jamo.svg" alt="Animated: positional Jamo assemble into two-dimensional Hangul syllable blocks" width="760">
 </p>
 
-## Hangul is not a flat inventory of 11,172 symbols
+</details>
 
-Hangul is an alphabet whose reusable letters are arranged by positional role into **two-dimensional syllable blocks**. Other writing systems also combine symbols; the relevant property here is Hangul's systematic pairing of alphabetic Jamo with syllable-block assembly.
+## Hypothesis and evidence
 
-```text
-67 reusable positional Jamo
-├─ choseong  · initial  19
-├─ jungseong · medial   21
-└─ jongseong · final    27 + ∅
-              │
-              ▼
-       2D syllable block
-       ᄒ + ᅡ + ᆫ → 한
-              │
-              ▼
-19 × 21 × 28 final states
-= 11,172 modern syllable blocks
-```
+> **Hypothesis.** If Korean had as much training data as English, a model trained on Jamo from the start, inside its embeddings and not only in the tokenizer, would handle Korean meaningfully better, especially where text meets speech: text-to-speech (TTS) and speech recognition (ASR).
 
-The 11,172 modern precomposed Unicode syllables therefore form a regular combinatorial space, not 11,172 unrelated writing primitives. That distinction motivates the tokenizer question: **can reusable Hangul structure and strong compression coexist?**
-
-This repository studies three properties that are easy to conflate:
-
-1. **Canonical robustness** — does token cost stay stable for canonically equivalent NFC/NFD text?
-2. **Structural awareness** — does the tokenizer expose reusable Hangul composition rather than only memorized syllables, phrases, or byte fragments?
-3. **Compression / fertility** — how many tokens does ordinary Korean text require?
-
-> **Normalization, structural representation, and compression are independent tokenizer design axes.**
-
-Proposal threads: [huggingface/tokenizers#1975](https://github.com/huggingface/tokenizers/issues/1975) · [google/sentencepiece#1197](https://github.com/google/sentencepiece/issues/1197) (mapping merged in [#1200](https://github.com/google/sentencepiece/pull/1200)) · [openai/tiktoken#511](https://github.com/openai/tiktoken/issues/511)
-
-> [!NOTE]
-> **Status and correction (2026-11-09).** This is a personal side project by a non-expert, built with AI assistance and paused since 2026-08. Treat it as a reference, not validated research.
-> The original RFC's compression claims ("slash token overhead by half", "close to parity" with English, "cost-free") were never measured and are retracted; the measured results are below. See the [correction on openai/tiktoken#511](https://github.com/openai/tiktoken/issues/511#issuecomment-6741124805).
-
-## Current status
+**This is the question the project started from. It is not tested here**, and no study found so far tests all of it.
 
 ```text
-DONE  Production tokenizer anatomy
-      8 released tokenizers inspected at fixed revisions
-        │
-        ▼
-DONE  Controlled SentencePiece precursor
-      Wikipedia · 32K baseline vs 32K Jamo-aware BPE
-        │
-        ▼
-PAUSED  Implementation-controlled 2×2 benchmark
-        CC-100 Korean training corpus
-        100 MiB cells trained (2026-08-27), not yet evaluated
-        1 GiB scale replication not started
-        │
-        ├─ precomposed / BPE
-        ├─ Jamo        / BPE
-        ├─ precomposed / SuperBPE
-        └─ Jamo        / SuperBPE
-              │
-              ▼
-      FLORES+ kor_Hang/devtest evaluation
+Tested above      ㅎㅏㄴㄱㅜㄱ → [한국]
+                  the model sees one vector
+
+The hypothesis    [한국] + (ㅎ ㅏ ㄴ ㄱ ㅜ ㄱ)
+                  the model sees the Jamo too
 ```
 
-The completed SentencePiece experiment is **precursor evidence**, not one cell of the upcoming SuperBPE 2×2. The new experiment uses one tokenizer implementation for all four cells so representation and compression policy can be separated cleanly.
+### Why it might hold
 
-## Production tokenizer anatomy
+| Reason | Example |
+|:--|:--|
+| Letters stand for sounds | ㅎ + ㅏ + ㄴ → 한 |
+| Spelling keeps the stem while the sound changes by rule | 읽다 [익따] · 읽는 [잉는] · 읽어 [일거] |
+| Grammar sits in the final letter | 간 (went) · 갈 (will go) · 감 (going) |
 
-Measured 2026-08-25–26. These are **vocabulary/configuration measurements**; cross-tokenizer compression and NFC/NFD rankings are withheld until the shared reference corpus is evaluated.
+### What published work shows
+
+| | Area | Result |
+|:-:|:--|:--|
+| 🟢 | Text model, from scratch | [KOMBO](https://aclanthology.org/2024.findings-acl.302/): +2.11% on average over the previous best on 5 tasks. Below BERT on 3 of 9 tasks in SCRIPT's comparison. |
+| 🟢 | Text model, Jamo added | [SCRIPT](https://aclanthology.org/2026.findings-acl.104/): average gains of up to 1.6%p on understanding tasks, at about 100M to 2.4B parameters. |
+| 🟢 | ASR, little data (50 h) | [K-Wav2vec](https://arxiv.org/abs/2110.05172): character error Jamo **6.60** vs. syllable 6.82. Both together: **6.41**. |
+| 🟡 | ASR, more data (965 h) | [K-Wav2vec](https://arxiv.org/abs/2110.05172): with sound-based transcripts, Jamo 7.31 vs. syllable 6.96, both together **6.88**. With standard spelling, syllable alone was best (**7.50**; both 7.54, Jamo 7.89). |
+| 🟢 | ASR rescoring | [SkipTC](https://arxiv.org/abs/2203.03583): in a language model that already splits off the final consonant, marking "no final consonant" cut word error from 6.73% to 6.59%. |
+| 🟡 | ASR, 2.8 h | [Taguchi & Chiang 2024](https://arxiv.org/abs/2406.09202): Jamo looks better on character error (16.7 vs. 28.2), but slightly worse once script differences are adjusted for (3.23 vs. 2.63). |
+| 🔴 | ASR, from scratch (52 h) | [Wang et al. 2020](https://arxiv.org/abs/1910.11590): word error Jamo 19.9%, Jamo subwords 4.3%, syllable **2.6%**. |
+| 🟡 | TTS, indirect | [vTTS](https://arxiv.org/abs/2203.14725): reading Hangul as an image, so its letters are visible, sounded more natural than whole-syllable IDs. Pronunciation input was still better than both in a small test. No direct Jamo vs. pronunciation test was found. |
+
+<sub>🟢 supports · 🟡 mixed · 🔴 against. Lower error is better. Papers were read in part (abstract, main tables, limitations), and their setups are not comparable with each other.</sub>
+
+### Where this leaves the hypothesis
+
+- **Jamo looks best next to syllables, not instead of them.** Adding Jamo to larger units helped in SCRIPT and in two of the three K-Wav2vec comparisons above.
+- **More data may shrink the edge.** In K-Wav2vec, Jamo alone beat syllables on the 50-hour set but not on the 965-hour set. The two sets also differ in content, so this is a hint against the "as much data as English" part, not proof.
+- **Letters are not yet sounds.** 국물 is read [궁물], so speech still needs pronunciation rules or a model that learns them.
+- **Still open:** one model trained from the start on text and speech, with Jamo inside its embeddings. Also not measured here: Korean sharing a vocabulary with other languages, and Jamo with SuperBPE (four 100 MiB cells trained on 2026-08-27, not evaluated).
+
+## Appendix
+
+<details>
+<summary><b>Eight released tokenizers: what their vocabularies contain</b> (2026-08-25–26)</summary>
 
 | Tokenizer | Vocab | Atomic Hangul syllables | Coverage of 11,172 | Multi-syllable pieces | Jamo-containing pieces | Normalizer |
 |---|---:|---:|---:|---:|---:|---|
@@ -83,209 +138,37 @@ Measured 2026-08-25–26. These are **vocabulary/configuration measurements**; c
 | K-EXAONE 2.0 / LG AI Research | 153,600 | 1,576 | 14.1% | 36,207 | 98 | `NFC` |
 | Motif 3 | 220,160 | 1,420 | 12.7% | **48,271** | 62 | none |
 
-### What this establishes
+Jamo-containing pieces include compatibility Jamo. These counts describe vocabularies only, not compression or model quality.
 
-- **Vocabulary size is not structural awareness.** Even the highest atomic coverage in this table is 15.5% of modern Hangul syllables.
-- **Learned Korean merges are not Jamo primitives.** Motif 3 has the largest measured multi-syllable inventory while containing only 62 Jamo-bearing pieces.
-- **Tokenizer design persists across model generations.** Vocabulary and normalizer choices can be inherited independently of later model improvements.
+| Tokenizer | Source · revision | Measured |
+|---|---|---|
+| o200k_base | `tiktoken` 0.14.0 built-in encoding | 2026-08-25 |
+| GLM-5.2 | [`zai-org/GLM-5.2`](https://huggingface.co/zai-org/GLM-5.2) @ `b4734de` | 2026-08-25 |
+| Gemma 4 | [`google/gemma-4-E4B-it`](https://huggingface.co/google/gemma-4-E4B-it) @ `ee0ef60` | 2026-08-25 |
+| Qwen3.8 | [`Qwen/Qwen3.8-27B`](https://huggingface.co/Qwen/Qwen3.8-27B) @ `1d4bf0f` | 2026-08-25 |
+| DeepSeek-V4-Flash | [`deepseek-ai/DeepSeek-V4-Flash-0731`](https://huggingface.co/deepseek-ai/DeepSeek-V4-Flash-0731) @ `7872f01` | 2026-08-25 |
+| Muse Glimmer | [`meta-models/Muse-Glimmer-30B`](https://huggingface.co/meta-models/Muse-Glimmer-30B) @ `a4e59da` | 2026-08-25 |
+| K-EXAONE 2.0 | [`LGAI-EXAONE/K-EXAONE-2.0-750B-A37B`](https://huggingface.co/LGAI-EXAONE/K-EXAONE-2.0-750B-A37B) @ `fec0c8d` | 2026-08-25 |
+| Motif 3 | [`Motif-Technologies/Motif-3`](https://huggingface.co/Motif-Technologies/Motif-3) @ `883d5c4` | 2026-08-26 |
 
-No tokenizer in this table uses the modern positional Jamo inventory as its primary Hangul representation.
+</details>
 
-## Controlled precursor — SentencePiece BPE
+<details>
+<summary><b>Test corpus</b></summary>
 
-The first controlled experiment asked a narrower question: **what changes if Hangul syllables are decomposed before ordinary BPE training?**
-
-```text
-same Korean Wikipedia train split
-same SentencePiece 0.2.2 BPE
-same 32K vocabulary
-same material training settings
-             │
-      ┌──────┴──────┐
-      ▼             ▼
-   identity      Hangul → Jamo
-   baseline      mapping
-      │             │
-      └──────┬──────┘
-             ▼
-   same Wikipedia held-out split
-```
-
-The Jamo path uses the repository's 11,172-entry [`data/korean_hangul_jamo.tsv`](data/korean_hangul_jamo.tsv) mapping. It decomposes only modern precomposed Hangul syllables into conjoining Jamo; it is not full Unicode NFD.
-
-### Primary 32K result
-
-| Metric | Baseline BPE 32K | Jamo-aware BPE 32K |
-|---|---:|---:|
-| Held-out NFC tokens | 7,449,254 | **7,339,458** (**−1.47%**) |
-| Held-out NFD/NFC ratio | **6.9809×** | **1.0013×** |
-| UTF-8 bytes / token | 4.6320 | **4.7013** |
-| Tokens / Hangul syllable | 0.8146 | **0.8026** |
-| Jamo-containing vocabulary pieces | 75 | **23,657** |
-| NFC-recomposed atomic syllables | **1,960** | 1,122 |
-| NFC-recomposed multi-syllable pieces | 18,312 | **21,461** |
-| Rare-tail isolated tokens / occurrence¹ | 4.0000 | **2.2281** |
-| Rare-tail byte tokens / occurrence¹ | 3.0000 | **0.0000** |
-
-The result is useful for three separate reasons:
-
-```text
-Jamo decomposition
-├─ canonical robustness  → large improvement
-├─ structural fallback   → rare Hangul avoids byte fallback
-└─ compression           → no penalty at this 32K operating point
-                            (1.47% fewer held-out NFC tokens)
-```
-
-¹ The rare-tail probe uses syllables occurring at most five times in the Wikipedia training split and reappearing in its held-out split: 50 types / 57 occurrences. All 11,172 modern syllables occur at least once in that training corpus, so this is **rare-tail fallback behavior**, not unseen-syllable or OOD generalization.
-
-### Controls
-
-A 32K `nmt_nfkc` control reaches **7,107,482** held-out NFC tokens and a **1.0000×** NFD/NFC ratio (one-token difference). It compresses better than both primary models while remaining syllable-based. That is evidence that canonical robustness, structural awareness, and compression should not be collapsed into one score.
-
-A pre-registered Jamo 24K auxiliary model uses **7,636,747** held-out NFC tokens. Reducing the vocabulary by 25% is therefore not free at this operating point, even though the rare-tail byte-fallback advantage remains. There is no matched 24K precomposed baseline, so this does **not** show whether Jamo loses more than precomposed text at smaller vocabularies.
-
-### Precursor corpus
-
-The precursor used the first three Korean Wikipedia `pages-articles-multistream` shards. Streaming extraction produced **144,018 articles / 319,968,030 characters**. A deterministic article-level SHA-256 split produced:
+Korean Wikipedia, first three `pages-articles-multistream` shards, split by article hash:
 
 - train: **136,757 documents / 675,056,542 bytes**;
 - held-out: **7,261 documents / 34,519,812 bytes**;
 - train SHA-256: `17d26d1136085e907d2e5e9506c6527ec1db4989840812a507624a0b088801ba`;
 - held-out SHA-256: `5bb1ae5d792ecc0444b925162c119a2aa6a0550e617d6e9646f007a4dcbde5de`.
 
-This split is in-distribution and is not cross-document deduplicated. It measures tokenizer behavior, not downstream language-model quality.
+Not deduplicated across documents. Evaluation-set roles are in [`docs/test-sets.md`](docs/test-sets.md).
 
-## Next experiment — representation × compression
+</details>
 
-The next benchmark separates **what Hangul is represented as** from **how aggressively that representation is compressed**.
-
-| | Ordinary BPE | SuperBPE |
-|---|---|---|
-| **Precomposed Hangul** | P-BPE | P-SuperBPE |
-| **Jamo representation** | J-BPE | J-SuperBPE |
-
-All four cells will use the same official SuperBPE/custom-`tokenizers` implementation family, final vocabulary size, source documents, and evaluation text. Only the intended axis changes.
-
-### Training corpus
-
-**CC-100 Korean** is the primary training corpus for the new experiment. The public Korean archive is `ko.txt.xz`; the XLM-R appendix reports the Korean CC-100 corpus as **5.644B tokens / 54.2 GiB**. The experiment uses only the Korean corpus, while preserving English words, numbers, URLs, punctuation, and other characters that naturally occur inside Korean documents.
-
-Two source-text budgets are pre-registered:
-
-- **100 MiB decoded UTF-8 source text** — primary controlled run;
-- **1 GiB decoded UTF-8 source text** — 10× scale replication.
-
-The budget is measured **before** Jamo transformation. Both representations therefore see exactly the same source documents.
-
-### Evaluation
-
-The headline public benchmark is **FLORES+ `kor_Hang/devtest` (1,012 sentences)**. The exact dataset revision will be pinned before publishable numbers are reported.
-
-The existing Wikipedia held-out split may be used only as optional domain-scale validation and to connect the new experiment to the precursor. Benchmark-set roles and references live in [`docs/test-sets.md`](docs/test-sets.md).
-
-### Research question
-
-```text
-Jamo chooses the structural alphabet.
-SuperBPE chooses how far statistical merging may extend.
-
-If the two are complementary:
-structure-aware representation + aggressive compression
-should coexist rather than trade off by construction.
-```
-
-No results from this 2×2 experiment are reported yet.
-
-## Open questions and hypothesis
-
-### Open questions
-
-Every tokenizer trained here was trained on Korean text, and every comparison reports tokenizer metrics, not model quality.
-
-| Question | What is known |
-|---|---|
-| Does Jamo help when Korean **shares a vocabulary** with English, code and other scripts? | Not measured. This is the setting of multilingual production tokenizers, and the original motivation. |
-| Does a Jamo representation improve **model quality**, not just token counts? | Partial evidence only: LoResMT 2025 reports translation gains in low-resource and restricted-vocabulary settings; in its full-data, full-vocabulary comparison the best Jamo and syllable models are within 0.3 BLEU. |
-
-### Hypothesis and analysis
-
-> [!IMPORTANT]
-> **Nothing in this subsection is measured.** Each step is tagged with its basis: 📏 measured · 📚 literature · 🤔 reasoning.
-
-**Hypothesis:** with as much Korean training data as English, a model built on Jamo all the way down, embeddings included, would handle Korean meaningfully better, especially where text meets speech.
-
-```text
-Step 1  tokenizer only ......... structure merged away ...... ≈ tie (−1.47%)          📏
-Step 2  Jamo-composed vectors .. structure kept ............. studied in KOMBO;
-                                                               untested here           📚
-Step 3  abundant data .......... model may learn it anyway .. reasoning ≈    🤔
-Step 4  what still remains ..... Korean form + speech link .. plausible      🤔
-```
-
-- **Step 1 📏 Tokenizer only.** Once BPE merges Jamo into a token, the model sees one ID and one embedding; the `ᄒ ᅡ ᆫ` inside `[한국]` is invisible. As vocabularies grow, merges rebuild syllables and words, consistent with the 32K tie above.
-- **Step 2 📚 Jamo-composed vectors.** One way for the structure to reach the model is to compose character or token representations from Jamo vectors, as KOMBO (Findings of ACL 2024) does; its results were not reviewed here. Generative models with different tokenizers should be compared by loss normalized to the same text unit (e.g. bits per character), and downstream tasks by task-appropriate metrics.
-- **Step 3 🤔 Abundant data.** With more data, any advantage from explicit Jamo structure might shrink; effects on general reasoning and knowledge remain untested.
-- **Step 4 🤔 What could remain.**
-  - *Grammar in the final consonant:* 간 = 가 + ᆫ (past adnominal), 갈 = 가 + ᆯ (future adnominal), 감 = 가 + ᆷ (nominalizer). Particle choice depends on it too: 책은 vs 사과는, 이/가, 을/를.
-  - *Morphophonemic spelling:* the verb 읽다 ("to read") keeps the written stem 읽- across forms while its pronunciation changes by regular rules: 읽다 [익따], 읽는 [잉는], 읽어 [일거]. One Jamo representation might therefore connect text (stable meaning) with text-to-speech (TTS) and automatic speech recognition (ASR).
-  - *A built-in hierarchy for efficiency:* Jamo → syllable block → space-delimited word. Raw Jamo sequences are longer (2.46 Jamo per syllable on a 5 MB sample of the Wikipedia held-out 📏), which this hierarchy could absorb.
-
-## How Hangul composes
-
-Every modern Hangul syllable U+AC00–U+D7A3 can be decomposed arithmetically:
-
-```text
-19 choseong × 21 jungseong × 28 jongseong states
-= 11,172 syllable blocks
-
-28 jongseong states = 27 final characters + no-final state
-```
-
-The positional characters are distinct from compatibility Jamo:
-
-```text
-가  U+AC00   precomposed Hangul syllable
-
-ᄀ  U+1100   conjoining Jamo · choseong
-ᅡ  U+1161   conjoining Jamo · jungseong
-ᆨ  U+11A8   conjoining Jamo · jongseong
-
-ㄱ  U+3131   compatibility Jamo
-```
-
-Unicode NFD produces **conjoining Jamo**, not compatibility Jamo.
-
-UTF-8 byte boundaries do not reliably align with Jamo boundaries: 한 / 할 / 함 share the leading bytes `ED 95`, while 긱 (`EA B8 B1`) and 깋 (`EA B9 8B`) share initial and vowel yet differ from the second byte.
-
-## What is measured
-
-### Vocabulary anatomy
-
-Every vocabulary entry is decoded back to text and classified as:
-
-- exactly one Hangul syllable → **atomic syllable**;
-- at least two Hangul syllables → **multi-syllable piece**;
-- contains Jamo code points → **Jamo-containing piece**;
-- invalid UTF-8 → **byte fragment**.
-
-For Jamo tokenizers, pieces are also NFC-recomposed before span statistics are computed so a decomposed multi-syllable piece is not mislabeled as having zero Hangul span.
-
-### Corpus metrics
-
-Reference-corpus evaluation reports corpus totals rather than isolated examples, including:
-
-- total tokens;
-- UTF-8 bytes/token;
-- characters/token;
-- tokens/Hangul syllable;
-- NFC vs NFD token totals and ratio;
-- document/sentence distribution summaries;
-- unknown or byte-fallback behavior when observable.
-
-[`docs/test-sets.md`](docs/test-sets.md) is the authority for evaluation-set roles.
-
-## Reproduce implemented work
+<details>
+<summary><b>Reproduce</b></summary>
 
 ```bash
 # Production vocabulary anatomy
@@ -312,66 +195,18 @@ uv run python src/train_superbpe.py --scale 100m --validate-only
 uv run python src/train_superbpe.py --scale 100m
 ```
 
-CC-100 corpus preparation, FLORES+ validation/preparation, and the SuperBPE training wrapper are implemented. The gated FLORES+ file still has to be obtained at an immutable revision, the isolated SuperBPE runtime was provisioned and the four 100 MiB cells were trained on 2026-08-27, and no 2×2 results are reported yet.
+Large corpora and trained models stay local and are ignored by Git.
 
-Large corpora and trained model artifacts stay local and are ignored by Git.
+</details>
 
-## Production revisions
-
-Results describe these exact tokenizer revisions; providers may update tokenizers later.
-
-| Tokenizer | Source · revision | Measured |
-|---|---|---|
-| o200k_base | `tiktoken` 0.14.0 built-in encoding | 2026-08-25 |
-| GLM-5.2 | [`zai-org/GLM-5.2`](https://huggingface.co/zai-org/GLM-5.2) @ `b4734de` | 2026-08-25 |
-| Gemma 4 | [`google/gemma-4-E4B-it`](https://huggingface.co/google/gemma-4-E4B-it) @ `ee0ef60` | 2026-08-25 |
-| Qwen3.8 | [`Qwen/Qwen3.8-27B`](https://huggingface.co/Qwen/Qwen3.8-27B) @ `1d4bf0f` | 2026-08-25 |
-| DeepSeek-V4-Flash | [`deepseek-ai/DeepSeek-V4-Flash-0731`](https://huggingface.co/deepseek-ai/DeepSeek-V4-Flash-0731) @ `7872f01` | 2026-08-25 |
-| Muse Glimmer | [`meta-models/Muse-Glimmer-30B`](https://huggingface.co/meta-models/Muse-Glimmer-30B) @ `a4e59da` | 2026-08-25 |
-| K-EXAONE 2.0 | [`LGAI-EXAONE/K-EXAONE-2.0-750B-A37B`](https://huggingface.co/LGAI-EXAONE/K-EXAONE-2.0-750B-A37B) @ `fec0c8d` | 2026-08-25 |
-| Motif 3 | [`Motif-Technologies/Motif-3`](https://huggingface.co/Motif-Technologies/Motif-3) @ `883d5c4` | 2026-08-26 |
-
-## Interpretation boundaries
-
-- Tokenizer efficiency is **not** downstream LM quality.
-- NFC/NFD parity is **not** the same as Jamo-aware structure.
-- Jamo counts in a vocabulary are a structural proxy, not a measurement of model-internal representations.
-- Wikipedia precursor results are in-distribution and do not establish OOD generalization.
-- The upcoming CC-100 experiment is Korean-only; it does not establish multilingual side effects.
-- Negative, neutral, or scale-dependent results are valid outcomes of the 2×2 experiment.
-
-## References
-
-### Unicode and Hangul structure
-
-- [Unicode Standard Annex #15: Unicode Normalization Forms](https://www.unicode.org/reports/tr15/) — normative NFC/NFD definitions.
-- [Unicode Korean FAQ](https://www.unicode.org/faq/korean.html) — precomposed Hangul and conjoining Jamo background.
-- [*A Sub-Character Architecture for Korean Language Processing* — EMNLP 2017](https://aclanthology.org/D17-1075/) — early sub-character Korean representation evidence.
-- [*Jamo Pair Encoding* — LREC 2020](https://aclanthology.org/2020.lrec-1.429/) — BPE over Hangul Jamo.
-- [*Jamo-Level Subword Tokenization in Low-Resource Korean Machine Translation* — ACL 2025](https://aclanthology.org/2025.loresmt-1.8/) — recent Jamo-level BPE evidence and caveats.
-- [*KOMBO: Korean Character Representations Based on the Combination Rules of Subcharacters* — Findings of ACL 2024](https://aclanthology.org/2024.findings-acl.302/) — composing character representations from Jamo inside the model.
-
-### Training corpora and evaluation
-
-- [CC-100 official corpus](https://data.statmt.org/cc-100/) — public monolingual corpus downloads including Korean `ko.txt.xz`.
-- [*Unsupervised Cross-lingual Representation Learning at Scale* — XLM-R](https://aclanthology.org/2020.acl-main.747/) — CC-100 construction/use and language-level corpus statistics.
-- [`docs/test-sets.md`](docs/test-sets.md) — FLORES+ and local evaluation-set contracts with source references.
-
-### Compression and tokenizer design
-
-- [*Length-aware Byte Pair Encoding for Mitigating Over-segmentation in Korean Machine Translation* — Findings of ACL 2024](https://aclanthology.org/2024.findings-acl.135/) — Korean over-segmentation as an optimization target.
-- [*Thunder-Tok* — 2025](https://arxiv.org/abs/2506.15138) — Korean tokenizer fertility study.
-- [*SuperBPE: Space Travel for Language Models* — 2025](https://arxiv.org/abs/2503.13423) — two-stage BPE with cross-whitespace merging.
-- [SuperBPE official code](https://github.com/PythonNut/superbpe) — implementation used by the planned 2×2 benchmark.
-- [*Motif 3 Technical Report* — 2026](https://arxiv.org/abs/2608.09119) — released model using SuperBPE-style tokenizer compression.
-- [*BPE Stays on SCRIPT* — 2025](https://arxiv.org/abs/2505.24689) and [*Separate Before You Compress* — 2026](https://arxiv.org/abs/2603.25309) — related structure-before-compression approaches.
-
-## Repository map
+<details>
+<summary><b>Files</b></summary>
 
 | File | Purpose |
 |---|---|
 | [`docs/test-sets.md`](docs/test-sets.md) | Evaluation-set definitions, roles, and references |
 | [`data/korean_hangul_jamo.tsv`](data/korean_hangul_jamo.tsv) | 11,172 modern Hangul syllable → conjoining-Jamo mappings |
+| [`src/generate_hangul_jamo.py`](src/generate_hangul_jamo.py) | Generate the syllable → Jamo mapping |
 | [`src/hangul_metrics.py`](src/hangul_metrics.py) | Shared Hangul vocabulary-anatomy classification |
 | [`src/analyze_tokenizer_json.py`](src/analyze_tokenizer_json.py) | Analyze a Hugging Face `tokenizer.json` |
 | [`src/analyze_tiktoken_encoding.py`](src/analyze_tiktoken_encoding.py) | Analyze a `tiktoken` encoding |
@@ -384,3 +219,35 @@ Results describe these exact tokenizer revisions; providers may update tokenizer
 | [`src/train_sentencepiece.py`](src/train_sentencepiece.py) | Train/audit precursor SentencePiece models |
 | [`src/compare_sentencepiece.py`](src/compare_sentencepiece.py) | Held-out precursor compression, normalization, vocabulary, and rare-tail metrics |
 | [`tests/test_pipeline.py`](tests/test_pipeline.py) | Pipeline invariants for extraction, splitting, normalization, fairness, and rare-tail metrics |
+
+</details>
+
+<details>
+<summary><b>References</b></summary>
+
+**Unicode and Hangul structure**
+
+- [Unicode Standard Annex #15: Unicode Normalization Forms](https://www.unicode.org/reports/tr15/) — normative NFC/NFD definitions.
+- [Unicode Korean FAQ](https://www.unicode.org/faq/korean.html) — precomposed Hangul and conjoining Jamo background.
+- [*A Sub-Character Architecture for Korean Language Processing* — EMNLP 2017](https://aclanthology.org/D17-1075/) — early sub-character Korean representation evidence.
+- [*Jamo Pair Encoding* — LREC 2020](https://aclanthology.org/2020.lrec-1.429/) — BPE over Hangul Jamo.
+- [*Jamo-Level Subword Tokenization in Low-Resource Korean Machine Translation* — ACL 2025](https://aclanthology.org/2025.loresmt-1.8/) — recent Jamo-level BPE evidence and caveats.
+- [*KOMBO: Korean Character Representations Based on the Combination Rules of Subcharacters* — Findings of ACL 2024](https://aclanthology.org/2024.findings-acl.302/) — composing character representations from Jamo inside the model.
+- [*SCRIPT: A Subcharacter Compositional Representation Injection Module for Korean Pre-Trained Language Models* — Findings of ACL 2026](https://aclanthology.org/2026.findings-acl.104/) — adding Jamo to existing subword embeddings; unrelated to *BPE Stays on SCRIPT* below.
+
+**Training corpora and evaluation**
+
+- [CC-100 official corpus](https://data.statmt.org/cc-100/) — public monolingual corpus downloads including Korean `ko.txt.xz`.
+- [*Unsupervised Cross-lingual Representation Learning at Scale* — XLM-R](https://aclanthology.org/2020.acl-main.747/) — CC-100 construction/use and language-level corpus statistics.
+- [`docs/test-sets.md`](docs/test-sets.md) — FLORES+ and local evaluation-set contracts with source references.
+
+**Compression and tokenizer design**
+
+- [*Length-aware Byte Pair Encoding for Mitigating Over-segmentation in Korean Machine Translation* — Findings of ACL 2024](https://aclanthology.org/2024.findings-acl.135/) — Korean over-segmentation as an optimization target.
+- [*Thunder-Tok* — 2025](https://arxiv.org/abs/2506.15138) — Korean tokenizer fertility study.
+- [*SuperBPE: Space Travel for Language Models* — 2025](https://arxiv.org/abs/2503.13423) — two-stage BPE with cross-whitespace merging.
+- [SuperBPE official code](https://github.com/PythonNut/superbpe) — implementation used for the 2×2 cells.
+- [*Motif 3 Technical Report* — 2026](https://arxiv.org/abs/2608.09119) — released model using SuperBPE-style tokenizer compression.
+- [*BPE Stays on SCRIPT* — 2025](https://arxiv.org/abs/2505.24689) and [*Separate Before You Compress* — 2026](https://arxiv.org/abs/2603.25309) — related structure-before-compression approaches.
+
+</details>
